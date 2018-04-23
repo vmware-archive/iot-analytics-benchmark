@@ -45,10 +45,9 @@ All programs are in Python or Scala.
    `cp log4j.properties.template log4j.properties`  
    Set `log4j.rootCategory=ERROR, console`
 
-- Copy file iotstream.tgz to Spark driver system and uncompress:  
-    `tar xvf iotstream.tgz`
+- Clone or download and unzip project
 
-Creates directory iotstream with contents:
+## Project Files
 
 File                         | Use
 :----                        | :---
@@ -66,8 +65,7 @@ File                         | Use
 `sim_sensors_lr_kafka.py`    | Program to generate sensor events to Kafka for iotstream input - Python version
 `sim_sensors_lr_kafka.scala` | Program to generate sensor events to Kafka for iotstream input - Scala version
 `sim_sensor_output.txt`      | Sample sim_sensors output
-`iotstream_2.11-0.0.1.jar`   | Java archive with Scala iotstream code
-`IoTStream_setup.md`         | This file
+`README.md`                  | This file
 
 
 ## Program usage (run any program without parameters to show):
@@ -373,17 +371,17 @@ pip install numpy
 
 `iotgen_lr_python.py` is a Python-only version of `iotgen_lr.py`
 
-Dave Jaffe 
-djaffe@vmware.com
 
 ## Releases & Major Branches
+
+Master
 
 ## Contributing
 
 The iot-analytics-benchmark project team welcomes contributions from the community. If you wish to contribute code and you have not
 signed our contributor license agreement (CLA), our bot will update the issue when you open a Pull Request. For any
 questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq). For more detailed information,
-refer to [CONTRIBUTING.md](CONTRIBUTING.md).
+refer to [CONTRIBUTING.md](CONTRIBUTING.md). Any questions or suggestions, please contact the author, Dave Jaffe at djaffe@vmware.com.
 
 ## License
 
