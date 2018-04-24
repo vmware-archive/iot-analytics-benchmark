@@ -65,6 +65,8 @@ File                         | Use
 `sim_sensors_lr_kafka.py`    | Program to generate sensor events to Kafka for iotstream input - Python version
 `sim_sensors_lr_kafka.scala` | Program to generate sensor events to Kafka for iotstream input - Scala version
 `sim_sensor_output.txt`      | Sample sim_sensors output
+`build.sbt.package`          | SBT package build file
+`build.sbt.assembly`         | SBT assembly build file
 `README.md`                  | This file
 
 
@@ -252,7 +254,25 @@ In a 2nd shell on the same or different servers:
 ...
 2018-03-01T21:08:12Z: 6000 events received in 48.3 seconds (47 intervals), or 124 sensor events/second
 ```
+## Compiling Scala code
 
+- Install SBT 2.11.8
+
+- To create package with external dependencies:
+```
+cd scala
+sbt package
+```
+Creates `iotstream_2.11-0.0.1.jar`
+
+- To create assembly which can be used standalone:
+
+```
+cd scala
+cp build.sbt.assembly build.sbt
+sbt assembly
+```
+Creates `iotstream-assembly-0.0.1.jar`
 
 ## Kafka/Scala version
 

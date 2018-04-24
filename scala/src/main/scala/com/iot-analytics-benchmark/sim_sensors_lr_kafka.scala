@@ -1,6 +1,6 @@
 /*
 sim_sensors_lr_kafka.scala: Program to generate sensor data for Spark streaming logistic regression model prediction and send to Kafka
-Usage: scala -cp <path>iotstream_<scala version>-<code version>.jar:/root/kafka/libs/* com.iotstream.sim_sensors_lr_kafka n_sensors average_sensor_events_per_second total_events kafka_server_list kafka_topic
+Usage: scala -cp <path>iotstream_<scala version>-<code version>.jar:/root/kafka/libs/<asterisk> com.iotstream.sim_sensors_lr_kafka n_sensors average_sensor_events_per_second total_events kafka_server_list kafka_topic
 kafka_server_list is comma-separated list of IPaddr:port, eg "192.168.1.2:9092,192.168.2.2:9092,192.168.3.2:9092" 
 
 Copyright (c) 2018 VMware, Inc.
