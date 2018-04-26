@@ -19,11 +19,8 @@ indicating when the impending failure conditions need attention.
 In the real world the data that iotgen simulates would be collected over time from actual conditions. iottrain would be a batch job
 that would be run periodically offline. iotstream is a small program that can be run on a single edge gateway in a factory.
 
-As a benchmark, iotgen is an excellent I/O test, taking on the order of 10 minutes to generate 1TB of data (8M rows with 10,000 sensor points each) on a 10-server Spark cluster. iottrain took about 20 minutes to train a model with that data on the same cluster. iotstream has been tested with up to 100,000 sensor events per second on a single VM
-
-Both HDFS and Amazon S3 are supported as repositories for the created training data and the machine learning model, as well as local disk for single-node Spark installations.
-
 Currently only the Spark Logistic Regression model is supported but we plan to add other machine learning programs.
+A simple network connection into Spark Streaming is supported, as well as the Kafka and MQTT message buses.
 All programs are in Python or Scala.
 
 
@@ -279,7 +276,7 @@ Creates `iotstream-assembly-0.0.1.jar`
 Add to spark-defaults.com:
 
 ```
-spark.jars.packages             org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  (add to other packages if using S3)
+spark.jars.packages      org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  (add to other packages if using S3)
 ```
 
 Obtain latest Kafka build from <http://kafka.apache.org>
@@ -296,7 +293,7 @@ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 -
 Created topic "perf3".
 ```
 
-In directory containing iotstream_2.11-0.0.1.jar, run IoTStream programs:
+In directory containing iotstream_2.11-0.0.1.jar, run programs:
 
 ```
 spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.cores.max=40 --conf spark.executor.cores=4 --executor-memory 40g --name iotgen_lr --class com.iotstream.iotgen_lr iotstream_2.11-0.0.1.jar 1000 100000 200 S3 davejaffedata sensor_data1K_100K_40 2501427837
@@ -307,7 +304,7 @@ spark-submit --master spark://bd-s01-n2.localdomain:7077 --name iottrain_lr --cl
 2018-02-20T05:47:40.459Z: Training logistic regression model and storing as s3a://davejaffedata/lr100K_40 using data from s3a://davejaffedata/sensor_data1K_100K_40
 2018-02-20T05:48:15.295Z: Trained logistic regression model and stored as s3a://davejaffedata/lr100K_40
 
-[root@bd-s01-n2 iotstream]# spark-submit --name iotstream_lr_kafka --class com.iotstream.iotstream_lr_kafka iotstream_2.11-0.0.1.jar 100000 1 localhost:9092 perf3 s3 davejaffedata lr100K_40
+spark-submit --name iotstream_lr_kafka --class com.iotstream.iotstream_lr_kafka iotstream_2.11-0.0.1.jar 100000 1 localhost:9092 perf3 s3 davejaffedata lr100K_40
 2018-02-20T06:04:58.022Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model s3a://davejaffedata/lr100K_40, with 1 second intervals
 No input  
 No input  <start sim_sensors (next command)>
@@ -339,6 +336,36 @@ Note: add Java definition to last command to use Kafka configuration files, eg
 java -cp iotstream-assembly-0.0.1.jar -Dlog4j.configuration=file:/root/kafka/config/tools-log4j.properties com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 perf3
 ```
 
+## MQTT version
+
+Add to spark-defaults.com:
+
+```
+spark.jars.packages      org.apache.bahir:spark-streaming-mqtt_2.11:2.2.0  (add to other packages if using S3)
+```
+
+Obtain latest Kafka build from <http://kafka.apache.org>
+
+Install and start using included ZooKeeper:
+
+```
+yum install mosquitto
+pip install mqtt
+pip install paho-mqtt
+mosquitto
+1524237101: mosquitto version 1.4.15 (build date 2018-03-17 10:23:28+0000) starting
+1524237101: Using default config.
+1524237101: Opening ipv4 listen socket on port 1883.
+1524237101: Opening ipv6 listen socket on port 1883.
+```
+
+In directory containing iotstream_2.11-0.0.1.jar, run programs:
+
+```
+spark-submit --name iotstream_lr_mqtt --class com.iotstream.iotstream_lr_mqtt iotstream_2.11-0.0.1.jar 1000 1 localhost 1883 t1 local sd lr1K
+
+scala -cp iotstream_2.11-0.0.1.jar:/root/org.eclipse.paho.client.mqttv3-1.2.0.jar com.iotstream.sim_sensors_lr_mqtt 1000 1000 10000 localhost 1883 t1
+```
 
 ## Miscellaneous Notes
 
