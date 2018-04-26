@@ -58,9 +58,13 @@ File                         | Use
 `iotstream_lr.py`            | Spark Streaming program to apply Logistic Regression model to input sensor values - Python version
 `iotstream_lr_kafka.py`      | Spark Streaming program to apply Logistic Regression model to input sensor values read from Kafka - Python version 
 `iotstream_lr_kafka.scala`   | Spark Streaming program to apply Logistic Regression model to input sensor values read from Kafka - Scala version 
+`iotstream_lr_mqtt.py`       | Spark Streaming program to apply Logistic Regression model to input sensor values read from MQTT - Python version 
+`iotstream_lr_mqtt.scala`    | Spark Streaming program to apply Logistic Regression model to input sensor values read from MQTT - Scala version 
 `sim_sensors_lr.py`          | Program to generate sensor events for iotstream input - Python version
 `sim_sensors_lr_kafka.py`    | Program to generate sensor events to Kafka for iotstream input - Python version
 `sim_sensors_lr_kafka.scala` | Program to generate sensor events to Kafka for iotstream input - Scala version
+`sim_sensors_lr_mqtt.py`     | Program to generate sensor events to MQTT for iotstream input - Python version
+`sim_sensors_lr_mqtt.scala`  | Program to generate sensor events to MQTT for iotstream input - Scala version
 `sim_sensor_output.txt`      | Sample sim_sensors output
 `build.sbt.package`          | SBT package build file
 `build.sbt.assembly`         | SBT assembly build file
@@ -344,9 +348,7 @@ Add to spark-defaults.com:
 spark.jars.packages      org.apache.bahir:spark-streaming-mqtt_2.11:2.2.0  (add to other packages if using S3)
 ```
 
-Obtain latest Kafka build from <http://kafka.apache.org>
-
-Install and start using included ZooKeeper:
+Install and start MQTT:
 
 ```
 yum install mosquitto
