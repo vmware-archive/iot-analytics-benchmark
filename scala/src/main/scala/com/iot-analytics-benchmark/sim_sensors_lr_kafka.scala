@@ -19,11 +19,17 @@ object sim_sensors_lr_kafka extends App {
   import java.time.Instant
   import java.util.Random
   import scala.math._
+  import org.apache.log4j.{Level, Logger}
 
   if (args.length != 5) {
     System.err.println("Usage: scala -cp <path>iotstream_<scala version>-<code version>.jar:/root/kafka/libs/* com.iotstream.sim_sensors_lr_kafka n_sensors average_sensor_events_per_second total_events kafka_server_list kafka_topic")
     System.exit(-1)
   }
+
+// Set logging level if log4j not configured (override by adding -Dlog4j.configuration=file:<path> to command)
+    if (!Logger.getRootLogger.getAllAppenders.hasMoreElements) {
+      Logger.getRootLogger.setLevel(Level.WARN)
+    }
 
   val n_sensors = args(0).toInt
   val events_per_second = args(1).toInt

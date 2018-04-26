@@ -11,6 +11,6 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-core" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-mllib" % sparkVersion % "provided",
   "org.apache.spark" %% "spark-streaming-kafka-0-8" % sparkVersion,
-  "org.apache.kafka" %  "kafka-clients" % kafkaVersion,
+  "org.apache.bahir" %% "spark-streaming-mqtt" % "2.2.0",
   "org.apache.kafka" %% "kafka" % kafkaVersion,
 )
