@@ -36,10 +36,12 @@ if len(sys.argv) == 8:
 else:
   cutoff = .25 * n_sensors * (n_sensors+1)
 
+partition_size = int(math.ceil(float(n_rows)/float(n_partitions)))  # In case n_rows not integer multiple of n_partitions
+n_rows = partition_size * n_partitions
+
 print "%sZ: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, n_rows, n_sensors, cutoff, n_partitions)
 
 def create_sensor_data_partition(i_partition):
-  partition_size = int(math.ceil(float(n_rows)/float(n_partitions)))  # In case n_rows not integer multiple of n_partitions
   sensor_array = np.zeros((partition_size, n_sensors+1))
   for i in range(partition_size):
     sensors = []

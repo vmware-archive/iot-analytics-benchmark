@@ -196,6 +196,7 @@ Notes:
 - redirect `iotstream_lr.py` std_err output to a file to avoid irrelevant error message:
      `spark-submit iotstream_lr.py 100 1 192.168.1.2 20000 local sd lr100 2> err.out`
 
+- in `iotgen_lr.py`, `n_rows` will be adjusted upward if necessary if `n_rows` is not evenly divisble by `n_partitions`
 
 ### Spark 1.6.2 with HDFS:
 ```
@@ -257,7 +258,9 @@ In a 2nd shell on the same or different servers:
 ```
 ## Compiling Scala code
 
-- Install SBT 2.11.8
+- Install Scala (2.10.6 and 2.11.8 tested)
+
+- Modify build.sbt for correct version of Scala and Spark
 
 - To create package with external dependencies:
 ```

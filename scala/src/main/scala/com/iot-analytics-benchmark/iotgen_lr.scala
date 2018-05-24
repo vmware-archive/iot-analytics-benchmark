@@ -30,7 +30,7 @@ object iotgen_lr {
       System.exit(-1)
     }
   
-    val n_rows    = args(0).toInt
+    var n_rows    = args(0).toInt
     val n_sensors = args(1).toInt
     val n_partitions  = args(2).toInt
   
@@ -44,10 +44,12 @@ object iotgen_lr {
     else .25 * n_sensors * (n_sensors+1)
     }
   
+    val partition_size = ceil(n_rows.toFloat/n_partitions.toFloat).toInt  // In case n_rows not integer multiple of n_partitions
+    n_rows = partition_size * n_partitions
+
     println("%s: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions".format(Instant.now.toString, ofilename, n_rows, n_sensors, cutoff, n_partitions))
   
     def create_sensor_data_partition(i_partition: Int): Array[Array[Float]] = {
-      val partition_size = ceil(n_rows.toFloat/n_partitions.toFloat).toInt  // In case n_rows not integer multiple of n_partitions
       var sensor_array = ofDim[Float](partition_size, n_sensors+1)
       val rand = new Random
       for (i <- 0 to partition_size-1) {
