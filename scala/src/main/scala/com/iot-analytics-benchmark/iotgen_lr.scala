@@ -49,6 +49,8 @@ object iotgen_lr {
 
     println("%s: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions".format(Instant.now.toString, ofilename, n_rows, n_sensors, cutoff, n_partitions))
   
+    val start_time = System.nanoTime
+
     def create_sensor_data_partition(i_partition: Int): Array[Array[Float]] = {
       var sensor_array = ofDim[Float](partition_size, n_sensors+1)
       val rand = new Random
@@ -83,12 +85,13 @@ object iotgen_lr {
     val lines = rdd.map(create_sensor_data_partition).flatMap(_.toList).map(toCSVLine)
     lines.saveAsTextFile(ofilename)
   
+    val elapsed_time = (System.nanoTime - start_time)/1000000000.0
     val size = (n_sensors+1)*8*n_rows.toFloat
     val TiB = pow(2,40); val GiB = pow(2,30); val MiB = pow(2,20); val KiB = pow(2,10)
-    if (size >= TiB)    {println("%s: Created file %s with size %.1fTB".format(Instant.now.toString, ofilename, size/TiB))}
-    else if (size >= GiB)  {println("%s: Created file %s with size %.1fGB".format(Instant.now.toString, ofilename, size/GiB))}
-    else if (size >= MiB)  {println("%s: Created file %s with size %.1fMB".format(Instant.now.toString, ofilename, size/MiB))}
-    else if (size >= KiB)  {println("%s: Created file %s with size %.1fKB".format(Instant.now.toString, ofilename, size/KiB))}
+    if (size >= TiB)       {println("%s: Created file %s with size %.1fTB in %.1f seconds".format(Instant.now.toString, ofilename, size/TiB, elapsed_time))}
+    else if (size >= GiB)  {println("%s: Created file %s with size %.1fGB in %.1f seconds".format(Instant.now.toString, ofilename, size/GiB, elapsed_time))}
+    else if (size >= MiB)  {println("%s: Created file %s with size %.1fMB in %.1f seconds".format(Instant.now.toString, ofilename, size/MiB, elapsed_time))}
+    else if (size >= KiB)  {println("%s: Created file %s with size %.1fKB in %.1f seconds".format(Instant.now.toString, ofilename, size/KiB, elapsed_time))}
   
     sc.stop()
   }

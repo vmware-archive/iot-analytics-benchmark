@@ -12,7 +12,7 @@ This product may include a number of subcomponents with separate copyright notic
 """
 
 import os, sys
-from time import gmtime, strftime
+from time import time, gmtime, strftime
 from pyspark import SparkConf, SparkContext
 from pyspark.mllib.classification import LogisticRegressionWithLBFGS, LogisticRegressionModel
 from pyspark.mllib.regression import LabeledPoint
@@ -30,6 +30,8 @@ else:
 
 print "%sZ: Training logistic regression model and storing as %s using data from %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, ifilename)
 
+start_time = time()
+
 # Load and parse the data
 def parsePoint(line):
   values = [float(x) for x in line.split(',')]
@@ -46,5 +48,5 @@ model = LogisticRegressionWithLBFGS.train(parsedData)
 # Save model
 print "%sZ: Trained logistic regression model and storing as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename)
 model.save(sc, ofilename)
-
-print "%sZ: Trained logistic regression model and stored as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename)
+elapsed_time = time() - start_time
+print "%sZ: Trained logistic regression model and stored as %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, elapsed_time)

@@ -16,7 +16,7 @@ This product may include a number of subcomponents with separate copyright notic
 
 import sys, random, math
 import numpy as np
-from time import gmtime, strftime
+from time import time, gmtime, strftime
 from pyspark import SparkConf, SparkContext
 
 if not (len(sys.argv) == 7 or len(sys.argv) == 8):
@@ -40,6 +40,8 @@ partition_size = int(math.ceil(float(n_rows)/float(n_partitions)))  # In case n_
 n_rows = partition_size * n_partitions
 
 print "%sZ: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, n_rows, n_sensors, cutoff, n_partitions)
+
+start_time = time()
 
 def create_sensor_data_partition(i_partition):
   sensor_array = np.zeros((partition_size, n_sensors+1))
@@ -68,6 +70,7 @@ r = sc.parallelize(range(n_partitions), n_partitions)
 lines = r.map(create_sensor_data_partition).flatMap(lambda a: a.tolist()).map(toCSVLine)
 lines.saveAsTextFile(ofilename)
 
+elapsed_time = time() - start_time
 size = float((n_sensors+1)*8*n_rows)
 KiB,MiB,GiB,TiB = pow(2,10),pow(2,20),pow(2,30),pow(2,40)
 if (size >= TiB):
@@ -80,4 +83,4 @@ elif (size >= KiB):
   size_str = "%.1fKB" % (size/KiB) 
 else:
   size_str = "%d" % size
-print "%sZ: Created file %s with size %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str)
+print "%sZ: Created file %s with size %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str, elapsed_time)

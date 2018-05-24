@@ -38,6 +38,8 @@ object iottrain_lr {
     }
   
     println("%s: Training logistic regression model and storing as %s using data from %s".format(Instant.now.toString, ofilename, ifilename))
+
+    val start_time = System.nanoTime
   
     def parsePoint(line: String): LabeledPoint = {
       val values = for (a <- line.split(",")) yield a.toDouble
@@ -57,7 +59,8 @@ object iottrain_lr {
     // Save model
     model.save(sc, ofilename)
 
-    println("%s: Trained logistic regression model and stored as %s".format(Instant.now.toString, ofilename))
+    val elapsed_time = (System.nanoTime - start_time)/1000000000.0
+    println("%s: Trained logistic regression model and stored as %s in %.1f seconds".format(Instant.now.toString, ofilename, elapsed_time))
   
     sc.stop()
   }
