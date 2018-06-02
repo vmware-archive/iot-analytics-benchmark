@@ -49,7 +49,9 @@ object iotgen_lr {
 
     println("%s: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions".format(Instant.now.toString, ofilename, n_rows, n_sensors, cutoff, n_partitions))
   
-    val start_time = System.nanoTime
+    val conf = new SparkConf().setAppName("iotgen_lr")
+    val sc = new SparkContext(conf)
+    val ones = sc.accumulator(0)
 
     def create_sensor_data_partition(i_partition: Int): Array[Array[Float]] = {
       var sensor_array = ofDim[Float](partition_size, n_sensors+1)
@@ -66,8 +68,13 @@ object iotgen_lr {
           score += sensors(s)*(s+1)
         }
         // Assign a label
-        val label =  if (score > cutoff) 1 else 0
-        sensors(0) = label
+        if (score > cutoff) {
+          ones.add(1)
+          sensors(0) = 1
+        }
+        else {
+          sensors(0) = 0
+        }
         sensor_array(i) = sensors
       }
       sensor_array
@@ -78,20 +85,21 @@ object iotgen_lr {
       s.mkString(",")
     }
   
-    val conf = new SparkConf().setAppName("iotgen_lr")
+    val start_time = System.nanoTime
     // Create an RDD with n_partitions elements, send each to create_sensor_data_partition, combine results, convert to CSV output and save to ofilename
-    val sc = new SparkContext(conf)
     val rdd = sc.parallelize(range(0, n_partitions), n_partitions)
     val lines = rdd.map(create_sensor_data_partition).flatMap(_.toList).map(toCSVLine)
     lines.saveAsTextFile(ofilename)
-  
     val elapsed_time = (System.nanoTime - start_time)/1000000000.0
+
     val size = (n_sensors+1)*8*n_rows.toFloat
+    var size_str = ""
     val TiB = pow(2,40); val GiB = pow(2,30); val MiB = pow(2,20); val KiB = pow(2,10)
-    if (size >= TiB)       {println("%s: Created file %s with size %.1fTB in %.1f seconds".format(Instant.now.toString, ofilename, size/TiB, elapsed_time))}
-    else if (size >= GiB)  {println("%s: Created file %s with size %.1fGB in %.1f seconds".format(Instant.now.toString, ofilename, size/GiB, elapsed_time))}
-    else if (size >= MiB)  {println("%s: Created file %s with size %.1fMB in %.1f seconds".format(Instant.now.toString, ofilename, size/MiB, elapsed_time))}
-    else if (size >= KiB)  {println("%s: Created file %s with size %.1fKB in %.1f seconds".format(Instant.now.toString, ofilename, size/KiB, elapsed_time))}
+    if (size >= TiB)       {size_str = "%.1fTB".format(size/TiB)}
+    else if (size >= GiB)  {size_str = "%.1fGB".format(size/GiB)}
+    else if (size >= MiB)  {size_str = "%.1fMB".format(size/MiB)}
+    else if (size >= KiB)  {size_str = "%.1fKB".format(size/KiB)}
+    println("%s: Created file %s with size %s in %.1f seconds with %d ones (%.1f%%)".format(Instant.now.toString, ofilename, size_str, elapsed_time, ones.value, (100.0*ones.value)/n_rows.toFloat))
   
     sc.stop()
   }

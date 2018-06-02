@@ -41,7 +41,8 @@ n_rows = partition_size * n_partitions
 
 print "%sZ: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, n_rows, n_sensors, cutoff, n_partitions)
 
-start_time = time()
+sc = SparkContext(appName="iotgen_lr")
+ones = sc.accumulator(0)
 
 def create_sensor_data_partition(i_partition):
   sensor_array = np.zeros((partition_size, n_sensors+1))
@@ -55,22 +56,24 @@ def create_sensor_data_partition(i_partition):
     for s in range (0, n_sensors):
       score += sensors[s]*(s+1)
     # Assign a label 
-    label =  [0,1] [score > cutoff]
-    sensors.insert(0, label) 
+    if (score > cutoff):
+      sensors.insert(0, 1) 
+      ones.add(1)
+    else:
+      sensors.insert(0, 0) 
     sensor_array[i] = sensors
   return sensor_array
 
 def toCSVLine(data):
   return ','.join('%.5f'% d for d in data)
 
-sc = SparkContext(appName="iotgen_lr")
-
+start_time = time()
 # Create an RDD with n_partitions elements, send each to create_sensor_data_partition, combine results, convert to CSV output and save to ofilename
 r = sc.parallelize(range(n_partitions), n_partitions)
 lines = r.map(create_sensor_data_partition).flatMap(lambda a: a.tolist()).map(toCSVLine)
 lines.saveAsTextFile(ofilename)
-
 elapsed_time = time() - start_time
+
 size = float((n_sensors+1)*8*n_rows)
 KiB,MiB,GiB,TiB = pow(2,10),pow(2,20),pow(2,30),pow(2,40)
 if (size >= TiB):
@@ -83,4 +86,4 @@ elif (size >= KiB):
   size_str = "%.1fKB" % (size/KiB) 
 else:
   size_str = "%d" % size
-print "%sZ: Created file %s with size %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str, elapsed_time)
+print "%sZ: Created file %s with size %s in %.1f seconds with %d ones (%.1f%%)" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str, elapsed_time, ones.value, (100.0*ones.value)/float(n_rows))
