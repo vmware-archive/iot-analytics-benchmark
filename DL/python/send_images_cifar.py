@@ -1,7 +1,7 @@
 """
 send_images_cifar.py: sends labeled CIFAR10 images encoded as a string to an inferencing program
 
-Usage: python3 send_images_cifar.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>
+Usage: python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>
 optional arguments:
   -h, --help            show this help message and exit
   -i IMAGESPERSEC, --imagesPerSec IMAGESPERSEC
