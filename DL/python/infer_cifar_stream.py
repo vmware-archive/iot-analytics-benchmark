@@ -1,0 +1,113 @@
+"""
+infer_stream_cifar.py: read pre-labeled CIFAR10 images using Spark Streaming, infer object using saved pre-trained model, compare to label
+
+In one window:
+  $ python3 send_images_cifar.py | nc -lk port_of_image_source
+
+In another window:
+  $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_stream_cifar.py [-h] \
+    -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -md MODELDEFSPATH, --modelDefsPath MODELDEFSPATH
+  -mw MODELWEIGHTSPATH, --modelWeightsPath MODELWEIGHTSPATH
+  -r REPORTINGINTERVAL, --reportingInterval REPORTINGINTERVAL
+  -i SOURCEIPADDRESS, --sourceIPAddress SOURCEIPADDRESS
+  -p SOURCEPORT, --sourcePort SOURCEPORT
+
+Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
+(Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
+Based on /root/BigDL/lib/bigdl/examples/keras (https://github.com/intel-analytics/BigDL/blob/master/pyspark/bigdl/examples/keras/mnist_cnn.py)
+Modified for CIFAR10 using convnet from https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py, modified for Keras 1.2.2
+
+Copyright (c) 2019 VMware, Inc.
+
+This product is licensed to you under the Apache 2.0 license (the "License").  You may not use this product except in compliance with the Apache 2.0 License.
+
+This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
+"""
+
+import sys
+import argparse
+import numpy as np
+from io import StringIO
+from time import time, gmtime, strftime, sleep
+
+from bigdl.nn.layer import *
+from bigdl.util.common import *
+from keras.datasets import cifar10
+
+from pyspark import SparkContext
+from pyspark.streaming import StreamingContext
+
+parser = argparse.ArgumentParser(description='Infer CIFAR10 images using pre-trained BigDL Keras CNN model')
+parser.add_argument("-md", "--modelDefsPath", type=str, dest="modelDefsPath", required=True)
+parser.add_argument("-mw", "--modelWeightsPath", type=str, dest="modelWeightsPath", required=True)
+parser.add_argument("-r", "--reportingInterval", type=int, dest="reportingInterval", default=10)
+parser.add_argument("-i", "--sourceIPAddress", type=str, dest="sourceIPAddress", default="192.168.1.1")
+parser.add_argument("-p", "--sourcePort", type=int, dest="sourcePort", default=10000)
+args = parser.parse_args()
+model_defs_path=args.modelDefsPath; model_weights_path=args.modelWeightsPath
+reporting_interval=args.reportingInterval; IP_address=args.sourceIPAddress; port=args.sourcePort
+
+def map_predict_label(l):
+    return np.array(l).argmax()
+
+def parse_labeled_image_strings(rdd_labeled_image_strings):
+  rdd_labels = rdd_labeled_image_strings.map(lambda string: np.uint8(string[0]))
+  rdd_images = rdd_labeled_image_strings.map(lambda string: np.loadtxt(StringIO(string[1:]), dtype=int).reshape((32,32,3)))
+  return(rdd_images, rdd_labels)
+
+def run_model(rdd):
+  if rdd.count() == 0:
+    empty_intervals.add(1)
+    print('%s.%03dZ: No images received in interval' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000))
+    if interval.value > 0:
+      print('%s.%03dZ: Stopping stream' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000))
+      ssc.stop()
+  else:
+    #print('Count=' + str(rdd.count()))
+    interval.add(1)
+    images.add(rdd.count())
+    rdd_test_images, rdd_test_labels = parse_labeled_image_strings(rdd)
+    rdd_test_sample  = rdd_test_images.map(lambda image: Sample.from_ndarray((image - training_mean)/training_std, 0))
+    predictions = model.predict(rdd_test_sample).map(map_predict_label)
+    #print('\n%s.%03dZ' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000))
+    #print(preds.collect())
+    preds_labels = predictions.zip(rdd_test_labels)
+    correct_preds  = preds_labels.map(lambda preds_labels: preds_labels[0] == preds_labels[1]).reduce(lambda accum,n: int(accum)+int(n))
+    correct_preds_tot.add(correct_preds)
+    print('%s.%03dZ: Interval %d:  images received=%d   images correctly predicted=%d'  % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, rdd.count(), correct_preds))
+
+# Read CIFAR10 images, calculate mean and std dev of training set
+(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
+training_mean = np.mean(train_images)
+training_std = np.std(train_images)
+
+# Initialize SparkContext, BigDL engine and various accumulators
+sc = SparkContext(appName="infer_stream_cifar", conf=create_spark_conf())
+init_engine()
+interval = sc.accumulator(0)
+empty_intervals = sc.accumulator(0)
+images  = sc.accumulator(0)
+correct_preds_tot  = sc.accumulator(0)
+
+# Load model trained using BDL_KERAS_CIFAR_CNN.py
+model = Model.loadModel(model_defs_path, model_weights_path)
+print('%s.%03dZ: Loaded trained model definitions %s and weights %s' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, model_defs_path, model_weights_path))
+print('%s.%03dZ: Starting reading streaming data from %s:%d at interval %s seconds' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, IP_address, port, reporting_interval))
+
+# Initialize StreamingContext, have it read TextStream through socket
+ssc = StreamingContext(sc, reporting_interval)
+image_stream = ssc.socketTextStream(IP_address, port)
+
+# Run model on each batch
+image_stream.foreachRDD(run_model)
+
+# Start reading streaming data
+ssc.start()
+start_time = time()
+ssc.awaitTermination()
+elapsed_time = time() - start_time - empty_intervals.value*reporting_interval - 2.4 # Subtract empty intervals and time to shut down stream
+print('\n%s.%03dZ: %d images received in %.1f seconds (%d intervals), or %.0f images/second  Correct predictions: %d  Pct correct: %.1f' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, images.value,  elapsed_time, interval.value, float(images.value)/elapsed_time, correct_preds_tot.value, float(100*correct_preds_tot.value)/images.value))
