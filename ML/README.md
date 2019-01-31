@@ -437,7 +437,7 @@ refer to [CONTRIBUTING.md](CONTRIBUTING.md). Any questions or suggestions, pleas
 
 ## License
 
-Copyright (c) 2018 VMware, Inc.
+Copyright (c) 2019 VMware, Inc.
 
 This product is licensed to you under the Apache 2.0 license (the "License").  You may not use this product except in compliance with the Apache 2.0 License.
 
