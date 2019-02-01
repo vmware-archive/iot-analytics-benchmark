@@ -13,7 +13,10 @@ The Keras classifiers are Python-based single node programs for running on an Io
 
 The BigDL classifiers are Spark-based distributed programs.
 
-Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
+Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and 
+
+CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
+
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
 
 ## Installation
@@ -51,7 +54,7 @@ File                         | Use
 
 ### Python-based CNN/RESNET CIFAR10 image classifier
 
-In one window:
+In one shell:
 
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
 
@@ -64,7 +67,7 @@ TOTALIMAGES    | Total number of images to send - defaults to 100
 
 Specify -s to subtract image mean from each image value - use for RESNET model
 
-In another window:
+In another shell:
 
 `nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
 
