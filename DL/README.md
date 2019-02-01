@@ -86,7 +86,7 @@ Example
 $ nc -lk 10000 | python3 infer_cifar.py --modelPath cifar10_ResNet20v1_model_91470.h5 --reportingInterval 1000
 Using TensorFlow backend.
 Loaded trained model cifar10_ResNet20v1_model_91470.h5
-Start send program  <run send_images_cifar.py - next command>
+Start send program
 2019-01-31T02:44:45Z: 1000 images classifed
 ...
 2019-01-31T02:45:38Z: 10000 images classifed
@@ -119,7 +119,7 @@ Specify -s to subtract image mean from each image value - use for RESNET model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
-`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`
+`spark-submit <Spark params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`
 ` [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
 
 where:
