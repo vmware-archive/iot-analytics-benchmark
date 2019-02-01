@@ -1,6 +1,6 @@
 
 
-# iot-analytics-benchmark
+# iot-analytics-benchmark DL
 
 ## Introduction
 
@@ -119,8 +119,8 @@ Specify -s to subtract image mean from each image value - use for RESNET model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
-`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py [-h] \
-   -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
+`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`
+` [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
 
 where:
 
