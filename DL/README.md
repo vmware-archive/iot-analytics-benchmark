@@ -17,9 +17,9 @@ Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutoria
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
 
 ## Installation
-UPDATE
+
 - Install Spark (Spark 2.4.0 Standalone tested here)
- - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+   - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
 
 - Install python3 on all nodes, add numpy, keras and tensorflow with pip
 
@@ -42,6 +42,8 @@ File                         | Use
 :----                        | :---
 `infer_cifar.py`             | Python program to classify CIFAR10 images using CNN or RESNET model
 `send_images_cifar.py`       | Send images to infer_cifar.py
+`keras_cifar10_trained_model_78.h5`   | Trained CNN model - 78% accurate
+`icifar10_ResNet20v1_model_91470.h5`  | Trained RESNET model - 91.47% accurate
 `README.md`                  | This file
 
 
@@ -50,6 +52,7 @@ File                         | Use
 ### Python-based CNN/RESNET CIFAR10 image classifier
 
 In one window:
+
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
 
 where:
@@ -62,6 +65,7 @@ TOTALIMAGES    | Total number of images to send - defaults to 100
 Specify -s to subtract image mean from each image value - use for RESNET model
 
 In another window:
+
 `nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
 
 where:
@@ -70,6 +74,30 @@ Parameter          | Use
 :---------         | :---
 MODELPATH          | location of trained model file - required
 REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
+
+Example
+
+```
+$ nc -lk 10000 | python3 infer_cifar.py --modelPath cifar10_ResNet20v1_model_91470.h5 --reportingInterval 1000
+Using TensorFlow backend.
+Loaded trained model cifar10_ResNet20v1_model_91470.h5
+Start send program  <run send_images_cifar.py - next command>
+2019-01-31T02:44:45Z: 1000 images classifed
+...
+2019-01-31T02:45:38Z: 10000 images classifed
+Inferenced 10000 images in 58.8 seconds or 170.0 images/second, with 9147 or 91.5% correctly classified
+
+$ python3 send_images_cifar.py -s -i 1000 -t 10000 | nc 192.168.1.1 10000
+Using TensorFlow backend.
+2019-01-31T02:44:28Z: Loading and normalizing the CIFAR10 data
+2019-01-31T02:44:39Z: Sending 1000 images per second for a total of 10000 images with pixel mean subtracted
+2019-01-31T02:44:44Z: 1000 images sent
+...
+2019-01-31T02:45:37Z: 10000 images sent
+2019-01-31T02:45:37Z: Image stream ended
+
+
+```
 
 ## Releases & Major Branches
 
