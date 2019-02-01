@@ -13,10 +13,8 @@ The Keras classifiers are Python-based single node programs for running on an Io
 
 The BigDL classifiers are Spark-based distributed programs.
 
-Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and 
-
-CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
-
+Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and  
+CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html   
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
 
 ## Installation
