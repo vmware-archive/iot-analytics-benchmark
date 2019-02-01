@@ -1,11 +1,11 @@
 """
-infer_stream_cifar.py: read pre-labeled CIFAR10 images using Spark Streaming, infer object using saved pre-trained model, compare to label
+infer_cifar_stream.py: read pre-labeled CIFAR10 images using Spark Streaming, infer object using saved pre-trained model, compare to label
 
 In one window:
-  $ python3 send_images_cifar.py | nc -lk port_of_image_source
+  $ python3 send_images_cifar_stream.py | nc -lk port_of_image_source
 
 In another window:
-  $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_stream_cifar.py [-h] \
+  $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py [-h] \
     -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]
 
 optional arguments:
@@ -86,7 +86,7 @@ training_mean = np.mean(train_images)
 training_std = np.std(train_images)
 
 # Initialize SparkContext, BigDL engine and various accumulators
-sc = SparkContext(appName="infer_stream_cifar", conf=create_spark_conf())
+sc = SparkContext(appName="infer_cifar_stream", conf=create_spark_conf())
 init_engine()
 interval = sc.accumulator(0)
 empty_intervals = sc.accumulator(0)

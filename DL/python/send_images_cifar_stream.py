@@ -1,7 +1,7 @@
 """
-send_images_cifar.py: sends CIFAR10 images encoded as a string to a Spark Streaming inference program
+send_images_cifar_stream.py: sends CIFAR10 images encoded as a string to a Spark Streaming inference program
 
-Usage: python3 send_images_cifar.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc -lk <port>
+Usage: python3 send_images_cifar_stream.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc -lk <port>
 optional arguments:
   -h, --help            show this help message and exit
   -i IMAGESPERSEC, --imagesPerSec IMAGESPERSEC

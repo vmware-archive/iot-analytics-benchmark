@@ -39,20 +39,35 @@ CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 
 ## Project Files
 
-File                         | Use
-:----                        | :---
-`infer_cifar.py`             | Python program to classify CIFAR10 images using CNN or RESNET model
-`send_images_cifar.py`       | Send images to infer_cifar.py
-`keras_cifar10_trained_model_78.h5`   | Trained CNN model - 78% accurate
-`icifar10_ResNet20v1_model_91470.h5`  | Trained RESNET model - 91.47% accurate
-`README.md`                  | This file
+File                                  | Use
+:----                                 | :---
+`infer_cifar.py`                      | Python Keras program to classify CIFAR10 images using CNN or RESNET model
+`send_images_cifar.py`                | Send images to infer_cifar.py
+`keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
+`icifar10_ResNet20v1_model_91470.h5`  | Trained RESNET model for Python Keras program - 91.47% accurate
+`infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
+`send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
+`BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
+`BDL_KERAS_CIFAR_CNN.bin.8`           | Trained CNN model weights file for BigDL program - 80% accurate
+`README.md`                           | This file
 
 
 ## Program usage (run any program with -h flag to see parameters)
 
-### Python-based CNN/RESNET CIFAR10 image classifier
+### Python Keras CNN/RESNET CIFAR10 image classifier
 
 In one shell:
+
+`nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
+
+where:
+
+Parameter          | Use
+:---------         | :---
+MODELPATH          | Location of trained model file - required
+REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
+
+Wait for program to output "Start send program" then, in a second shell:
 
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
 
@@ -64,17 +79,6 @@ IMAGESPERSEC   | Images per second to send - defaults to 10
 TOTALIMAGES    | Total number of images to send - defaults to 100
 
 Specify -s to subtract image mean from each image value - use for RESNET model
-
-In another shell:
-
-`nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
-
-where:
-
-Parameter          | Use
-:---------         | :---
-MODELPATH          | location of trained model file - required
-REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
 
 Example
 
@@ -96,25 +100,70 @@ Using TensorFlow backend.
 ...
 2019-01-31T02:45:37Z: 10000 images sent
 2019-01-31T02:45:37Z: Image stream ended
-
-
 ```
 
-## Releases & Major Branches
+### Spark Streaming BigDL CNN CIFAR10 image classifier
 
-Master
+In one shell:
 
-## Contributing
+`python3 send_images_cifar_stream.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc -lk <port>`
 
-The iot-analytics-benchmark project team welcomes contributions from the community. If you wish to contribute code and you have not
-signed our contributor license agreement (CLA), our bot will update the issue when you open a Pull Request. For any
-questions about the CLA process, please refer to our [FAQ](https://cla.vmware.com/faq). For more detailed information,
-refer to [CONTRIBUTING.md](CONTRIBUTING.md). Any questions or suggestions, please contact the author, Dave Jaffe at djaffe@vmware.com.
+where:
 
-## License
+Parameter      | Use
+:---------     | :---
+IMAGESPERSEC   | Images per second to send - defaults to 10
+TOTALIMAGES    | Total number of images to send - defaults to 100
 
-Copyright (c) 2019 VMware, Inc.
+Specify -s to subtract image mean from each image value - use for RESNET model
 
-This product is licensed to you under the Apache 2.0 license (the "License").  You may not use this product except in compliance with the Apache 2.0 License.
+Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
-This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
+`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py [-h] \
+   -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
+
+where:
+
+Parameter          | Use
+:---------         | :---
+MODELDEFSPATH      | Location of trained model definitions file - required
+MODELWEIGHTSPATH   | Location of trained model weights file - required
+REPORTINGINTERVAL  | Reporting interval - defaults to every 10 seconds
+SOURCEIPADDRESS    | Source IP Address - defaults to 192.168.1.1
+SOURCEPORT         | Source port - defaults to 10000
+
+Example
+
+```
+$ python3 send_images_cifar_stream.py -i 12000 -t 1000000 | nc -lk 10000
+Using TensorFlow backend.
+2019-01-31T15:54:25Z: Loading and normalizing the CIFAR10 data
+2019-01-31T15:54:34Z: Pausing 15 seconds - start infer_cifar_stream.py
+2019-01-31T15:54:49Z: Sending 12000 images per second for a total of 1000000 images
+2019-01-31T15:54:50Z: 12000 images sent
+...
+2019-01-31T15:56:14Z: 1000000 images sent
+2019-01-31T15:56:14Z: Image stream ended - keeping socket open for 120 seconds
+
+$ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 -r 25
+Prepending /usr/lib/python3.6/site-packages/bigdl/share/conf/spark-bigdl.conf to sys.path
+Using TensorFlow backend.
+cls.getname: com.intel.analytics.bigdl.python.api.Sample
+BigDLBasePickler registering: bigdl.util.common  Sample
+cls.getname: com.intel.analytics.bigdl.python.api.EvaluatedResult
+BigDLBasePickler registering: bigdl.util.common  EvaluatedResult
+cls.getname: com.intel.analytics.bigdl.python.api.JTensor
+BigDLBasePickler registering: bigdl.util.common  JTensor
+cls.getname: com.intel.analytics.bigdl.python.api.JActivity
+BigDLBasePickler registering: bigdl.util.common  JActivity
+2019-01-31T15:54:40.199Z: Loaded trained model definitions BDL_KERAS_CIFAR_CNN.bigdl.8 and weights BDL_KERAS_CIFAR_CNN.bin.8
+2019-01-31T15:54:40.199Z: Starting reading streaming data from 192.168.1.1:10000 at interval 25 seconds
+2019-01-31T15:55:14.059Z: Interval 1:  images received=126280   images correctly predicted=101124
+2019-01-31T15:55:45.381Z: Interval 2:  images received=295772   images correctly predicted=236811
+2019-01-31T15:56:10.629Z: Interval 3:  images received=284603   images correctly predicted=227911
+2019-01-31T15:56:33.227Z: Interval 4:  images received=292563   images correctly predicted=234241
+2019-01-31T15:56:43.345Z: Interval 5:  images received=782   images correctly predicted=613
+2019-01-31T15:57:05.017Z: Stopping stream
+
+2019-01-31T15:57:07.422Z: 1000000 images received in 116.0 seconds (5 intervals), or 8619 images/second  Correct predictions: 800700  Pct correct: 80.1
+```
