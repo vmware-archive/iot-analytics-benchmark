@@ -37,8 +37,12 @@ def accurate_wait(wait_in_seconds):
     while (waitUntil > monotonic()):
       pass
 
+# Send stdout to stderr - cifar10.load_data() writes progress to stdout if data not cached locally
+temp = sys.stdout
+sys.stdout = sys.stderr
 print("%sZ: Loading and normalizing the CIFAR10 data" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime())), file=sys.stderr)
 (_, _), (test_images, test_labels) = cifar10.load_data()
+sys.stdout = temp
 n_images = test_images.shape[0]
 n_labels = test_labels.shape[0]
 
