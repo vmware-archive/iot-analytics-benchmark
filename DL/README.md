@@ -44,7 +44,7 @@ File                                  | Use
 `infer_cifar.py`                      | Python Keras program to classify CIFAR10 images using CNN or RESNET model
 `send_images_cifar.py`                | Send images to infer_cifar.py
 `keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
-`icifar10_ResNet20v1_model_91470.h5`  | Trained RESNET model for Python Keras program - 91.47% accurate
+`cifar10_ResNet20v1_model_91470.h5`   | Trained RESNET model for Python Keras program - 91.47% accurate
 `infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
 `send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
 `BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
@@ -167,3 +167,25 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 2019-01-31T15:57:07.422Z: 1000000 images received in 116.0 seconds (5 intervals), or 8619 images/second  Correct predictions: 800700  Pct correct: 80.1
 ```
+## Where do trained models come from?
+
+### keras_cifar10_trained_model_78.h5
+
+Used program https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py with one change:  
+Added after line 116:  
+  steps_per_epoch=len(x_train)/batch_size,  
+Ran for 100 epochs, reached 77.7% accuracy on test set
+
+### cifar10_ResNet20v1_model_91470.h5
+
+Used program https://github.com/keras-team/keras/blob/master/examples/cifar10_resnet.py with two changes:  
+Added after lines 369 and 425:  
+  steps_per_epoch=len(x_train)/batch_size,  
+Ran for 200 epochs, reached 91.47% accuracy on test set
+
+### BDL_KERAS_CIFAR_CNN.bigdl.8/BDL_KERAS_CIFAR_CNN.bin.8
+
+Created program based on https://github.com/intel-analytics/BigDL/blob/master/pyspark/bigdl/examples/keras/mnist_cnn.py  
+Modified for CIFAR10 using convnet from https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py, modified for Keras 1.2.2  
+Ran to an accuracy target of 80%  
+Saved trained model using trained_model.saveModel 
