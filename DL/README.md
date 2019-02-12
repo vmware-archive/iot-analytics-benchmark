@@ -87,9 +87,9 @@ $ nc -lk 10000 | python3 infer_cifar.py --modelPath cifar10_ResNet20v1_model_914
 Using TensorFlow backend.
 Loaded trained model cifar10_ResNet20v1_model_91470.h5
 Start send program
-2019-01-31T02:44:45Z: 1000 images classifed
+2019-01-31T02:44:45Z: 1000 images classified
 ...
-2019-01-31T02:45:38Z: 10000 images classifed
+2019-01-31T02:45:38Z: 10000 images classified
 Inferenced 10000 images in 58.8 seconds or 170.0 images/second, with 9147 or 91.5% correctly classified
 
 $ python3 send_images_cifar.py -s -i 1000 -t 10000 | nc 192.168.1.1 10000

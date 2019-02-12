@@ -58,7 +58,7 @@ for labeled_image_str in sys.stdin:
     if label == prediction:
       n_correct += 1
     if n_images%reporting_interval == 0:
-      print('%sZ: %d images classifed' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), n_images))
+      print('%sZ: %d images classified' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), n_images))
     
 finish_time = time()
 print('Inferenced %d images in %.1f seconds or %.1f images/second, ' % (n_images, finish_time-start_time, 1.0*n_images/(finish_time-start_time)), end='')
