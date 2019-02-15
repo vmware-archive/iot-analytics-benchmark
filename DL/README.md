@@ -25,20 +25,20 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
 - Install python3 and pip3 on all nodes, add numpy, keras and tensorflow with pip3  
 
-  - Example on Centos 7:
-```
-$ yum install https://centos7.iuscommunity.org/ius-release.rpm
-$ yum install python36u python36u-pip
-$ ln -s /usr/bin/python3.6 /usr/bin/python3
-$ ln -s /usr/bin/pip3.6 /usr/bin/pip3
-$ pip3 install --upgrade pip
-$ pip3 install numpy keras ipython tensorflow
-```
+  Example on Centos 7:
+  ```
+  $ yum install https://centos7.iuscommunity.org/ius-release.rpm
+  $ yum install python36u python36u-pip
+  $ ln -s /usr/bin/python3.6 /usr/bin/python3
+  $ ln -s /usr/bin/pip3.6 /usr/bin/pip3
+  $ pip3 install --upgrade pip
+  $ pip3 install numpy keras ipython tensorflow
+  ```
 
 - Install nc on driver node (`yum install nc`)
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
-    `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
+  `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
 
 - Add spark/bin directory to `$PATH`
 
@@ -58,13 +58,14 @@ File                                  | Use
 `infer_cifar.py`                      | Python Keras program to classify CIFAR10 images using CNN or ResNet model
 `send_images_cifar.py`                | Send images to infer_cifar.py
 `keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
-`cifar10_ResNet20v1_model_91470.h5`   | Trained ResNet model for Python Keras program - 91.47% accurate
+`cifar10_ResNet20v1_model_91470.h5`   | Trained ResNet model for Python Keras program - 91.4% accurate
 `infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
 `send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
 `BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
 `BDL_KERAS_CIFAR_CNN.bin.8`           | Trained CNN model weights file for BigDL program - 80% accurate
 `infer_cifar_stream.scala`            | Spark Streaming BigDL scala program to classify CIFAR10 images using ResNet model
 `send_images_cifar_stream.scala`      | Send images to infer_cifar_stream.scala
+`bigdl_resnet_model_893`              | Trained ResNet model for Scala BigDL program - 89.3% accurate
 `README.md`                           | This file
 
 
@@ -72,7 +73,7 @@ File                                  | Use
 
 ### Python Keras CNN/ResNet CIFAR10 image classifier
 
-In one shell:
+In one shell, `cd <path>/iot-analytics-benchmark-master/DL/python`, then:
 
 `nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
 
@@ -83,7 +84,7 @@ Parameter          | Use
 MODELPATH          | Location of trained model file - required
 REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
 
-Wait for program to output "Start send program" then, in a second shell:
+Wait for program to output "Start send program" then, in a second shell in the same directory:
 
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
 
@@ -120,7 +121,7 @@ Using TensorFlow backend.
 
 ### Spark Streaming BigDL CNN CIFAR10 image classifier
 
-In one shell:
+In one shell, `cd <path>/iot-analytics-benchmark-master/DL/python`, then:
 
 `python3 send_images_cifar_stream.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc -lk <port>`
 
