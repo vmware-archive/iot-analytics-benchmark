@@ -15,7 +15,7 @@ The BigDL classifiers (Python and Scala versions) are Spark-based distributed pr
 
 Uses Intel's BigDL library (see <https://github.com/intel-analytics/BigDL-Tutorials>) and  
 CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>   
-(Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, <https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf>)
+[Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
 
 ## Installation
 
@@ -23,8 +23,16 @@ CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>
    - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
    - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
-- Install python3 on all nodes, add numpy, keras and tensorflow with pip
-  - see 
+- Install python3 and pip3 on all nodes, add numpy, keras and tensorflow with pip3  
+Example on Centos 7
+```
+$ yum install https://centos7.iuscommunity.org/ius-release.rpm
+$ yum install python36u python36u-pip
+$ ln -s /usr/bin/python3.6 /usr/bin/python3
+$ ln -s /usr/bin/pip3.6 /usr/bin/pip3
+$ pip3 install --upgrade pip
+$ pip3 install numpy keras ipython tensorflow
+```
 
 - Install nc on driver node (`yum install nc`)
 
@@ -33,9 +41,11 @@ CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>
 
 - Add spark/bin directory to `$PATH`
 
-- Set log level from INFO to ERROR (suggested for cleaner output, especially of iotstream). In `spark/conf`:
-   `cp log4j.properties.template log4j.properties`
-   Set `log4j.rootCategory=ERROR, console`
+- Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end). In `spark/conf`:
+```
+cp log4j.properties.template log4j.properties
+edit log4j.properties:
+log4j.rootCategory=ERROR, console
 
 - Clone or download and unzip project
 
