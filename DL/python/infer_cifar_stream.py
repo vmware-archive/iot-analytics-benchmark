@@ -5,16 +5,15 @@ In one window:
   $ python3 send_images_cifar_stream.py | nc -lk port_of_image_source
 
 In another window:
-  $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py [-h] \
-    -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]
+  $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py <arguments>
 
-optional arguments:
-  -h, --help            show this help message and exit
-  -md MODELDEFSPATH, --modelDefsPath MODELDEFSPATH
-  -mw MODELWEIGHTSPATH, --modelWeightsPath MODELWEIGHTSPATH
-  -r REPORTINGINTERVAL, --reportingInterval REPORTINGINTERVAL
-  -i SOURCEIPADDRESS, --sourceIPAddress SOURCEIPADDRESS
-  -p SOURCEPORT, --sourcePort SOURCEPORT
+  Arguments:
+  -h          | --help                      print help message
+  -md <value> | --modelDefsPath <value>     model definitions path     Required
+  -mw <value> | --modelWeightsPath <value>  model weights path         Required
+  -r  <value> | --reportingInterval <value> reporting interval (sec)   Default: 10
+  -i  <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1
+  -p  <value> | --sourcePort <value>        source port                Default: 10000
 
 Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -48,11 +47,11 @@ parser.add_argument("-r", "--reportingInterval", type=int, dest="reportingInterv
 parser.add_argument("-i", "--sourceIPAddress", type=str, dest="sourceIPAddress", default="192.168.1.1")
 parser.add_argument("-p", "--sourcePort", type=int, dest="sourcePort", default=10000)
 args = parser.parse_args()
-model_defs_path=args.modelDefsPath; model_weights_path=args.modelWeightsPath
-reporting_interval=args.reportingInterval; IP_address=args.sourceIPAddress; port=args.sourcePort
-
-def map_predict_label(l):
-    return np.array(l).argmax()
+model_defs_path=args.modelDefsPath
+model_weights_path=args.modelWeightsPath
+reporting_interval=args.reportingInterval
+IP_address=args.sourceIPAddress
+port=args.sourcePort
 
 def parse_labeled_image_strings(rdd_labeled_image_strings):
   rdd_labels = rdd_labeled_image_strings.map(lambda string: np.uint8(string[0]))
@@ -67,18 +66,20 @@ def run_model(rdd):
       print('%s.%03dZ: Stopping stream' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000))
       ssc.stop()
   else:
-    #print('Count=' + str(rdd.count()))
     interval.add(1)
-    images.add(rdd.count())
+    input_length = rdd.count()
+    images.add(input_length)
     rdd_test_images, rdd_test_labels = parse_labeled_image_strings(rdd)
     rdd_test_sample  = rdd_test_images.map(lambda image: Sample.from_ndarray((image - training_mean)/training_std, 0))
-    predictions = model.predict(rdd_test_sample).map(map_predict_label)
-    #print('\n%s.%03dZ' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000))
-    #print(preds.collect())
-    preds_labels = predictions.zip(rdd_test_labels)
-    correct_preds  = preds_labels.map(lambda preds_labels: preds_labels[0] == preds_labels[1]).reduce(lambda accum,n: int(accum)+int(n))
+    predictions = model.predict_class(rdd_test_sample).collect()
+    labels = rdd_test_labels.collect()
+    correct_preds  = 0
+    for i in range(input_length):
+      if (predictions[i]-1 == labels[i]): # predict_class returns index of predicted class starting at 1
+       correct_preds += 1
     correct_preds_tot.add(correct_preds)
-    print('%s.%03dZ: Interval %d:  images received=%d   images correctly predicted=%d'  % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, rdd.count(), correct_preds))
+    print('%s.%03dZ: Interval %d:  images received=%d   images correctly predicted=%d' %  
+      (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, input_length, correct_preds))
 
 # Read CIFAR10 images, calculate mean and std dev of training set
 (train_images, train_labels), (test_images, test_labels) = cifar10.load_data()

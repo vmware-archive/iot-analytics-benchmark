@@ -3,15 +3,16 @@
 infer_cifar.py: read pre-labeled CIFAR10 images from standard input, infer object using saved pre-trained keras model, compare to label
 
 In one window:
-  $ python3 send_images_cifar.py | nc <dest IP address>  <dest port>
+  $ python3 send_images_cifar.py | nc <dest IP address> <dest port>
 
 In another window:
-  $ nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]
+  $ nc -lk <port> | python3 infer_cifar.py <arguments>
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -m MODELPATH, --modelPath MODELPATH
-  -r REPORTINGINTERVAL, --reportingInterval REPORTINGINTERVAL
+  Arguments:
+  -h         | --help                       print help message
+  -m <value> | --modelPath <value>          model path                 Required
+  -r <value> | --reportingInterval <value>  reporting interval (sec)   Default: 10
 
 Uses CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -32,9 +33,10 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Infer CIFAR10 images using pre-trained Keras model')
 parser.add_argument("-m", "--modelPath", type=str, dest="modelPath", required=True)
-parser.add_argument("-r", "--reportingInterval", type=int, dest="reportingInterval", default=100)
+parser.add_argument("-r", "--reportingInterval", type=int, dest="reportingInterval", default=10)
 args = parser.parse_args()
-model_path=args.modelPath; reporting_interval=args.reportingInterval;
+model_path=args.modelPath
+reporting_interval=args.reportingInterval
 
 model = load_model(model_path)
 print('Loaded trained model %s ' % model_path)
