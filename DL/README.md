@@ -25,7 +25,7 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
 - Install python3 and pip3 on all nodes, add numpy, keras and tensorflow with pip3  
 
-Example on Centos 7:
+  - Example on Centos 7:
 ```
 $ yum install https://centos7.iuscommunity.org/ius-release.rpm
 $ yum install python36u python36u-pip
@@ -44,10 +44,10 @@ $ pip3 install numpy keras ipython tensorflow
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
 
- In `spark/conf`:
-`cp log4j.properties.template log4j.properties`
-edit `log4j.properties`:
-`log4j.rootCategory=ERROR, console`
+  In `spark/conf`:  
+  `cp log4j.properties.template log4j.properties`  
+  edit `log4j.properties`:  
+  `log4j.rootCategory=ERROR, console`  
 
 - Clone or download and unzip project
 
