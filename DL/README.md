@@ -15,16 +15,17 @@ The BigDL classifiers (Python and Scala versions) are Spark-based distributed pr
 
 Uses Intel's BigDL library (see <https://github.com/intel-analytics/BigDL-Tutorials>) and  
 CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>   
-[Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
+See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
 
 ## Installation
 
 - Install Spark 
-   - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
-   - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
+  - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+  - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
 - Install python3 and pip3 on all nodes, add numpy, keras and tensorflow with pip3  
-Example on Centos 7
+
+Example on Centos 7:
 ```
 $ yum install https://centos7.iuscommunity.org/ius-release.rpm
 $ yum install python36u python36u-pip
@@ -41,11 +42,12 @@ $ pip3 install numpy keras ipython tensorflow
 
 - Add spark/bin directory to `$PATH`
 
-- Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end). In `spark/conf`:
-```
-cp log4j.properties.template log4j.properties
-edit log4j.properties:
-log4j.rootCategory=ERROR, console
+- Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
+
+ In `spark/conf`:
+`cp log4j.properties.template log4j.properties`
+edit `log4j.properties`:
+`log4j.rootCategory=ERROR, console`
 
 - Clone or download and unzip project
 
@@ -53,20 +55,22 @@ log4j.rootCategory=ERROR, console
 
 File                                  | Use
 :----                                 | :---
-`infer_cifar.py`                      | Python Keras program to classify CIFAR10 images using CNN or RESNET model
+`infer_cifar.py`                      | Python Keras program to classify CIFAR10 images using CNN or ResNet model
 `send_images_cifar.py`                | Send images to infer_cifar.py
 `keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
-`cifar10_ResNet20v1_model_91470.h5`   | Trained RESNET model for Python Keras program - 91.47% accurate
+`cifar10_ResNet20v1_model_91470.h5`   | Trained ResNet model for Python Keras program - 91.47% accurate
 `infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
 `send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
 `BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
 `BDL_KERAS_CIFAR_CNN.bin.8`           | Trained CNN model weights file for BigDL program - 80% accurate
+`infer_cifar_stream.scala`            | Spark Streaming BigDL scala program to classify CIFAR10 images using ResNet model
+`send_images_cifar_stream.scala`      | Send images to infer_cifar_stream.scala
 `README.md`                           | This file
 
 
 ## Program usage (run any program with -h flag to see parameters)
 
-### Python Keras CNN/RESNET CIFAR10 image classifier
+### Python Keras CNN/ResNet CIFAR10 image classifier
 
 In one shell:
 
@@ -90,7 +94,7 @@ Parameter      | Use
 IMAGESPERSEC   | Images per second to send - defaults to 10
 TOTALIMAGES    | Total number of images to send - defaults to 100
 
-Specify -s to subtract image mean from each image value - use for RESNET model
+Specify -s to subtract image mean from each image value - use for ResNet model
 
 Example
 
@@ -127,7 +131,7 @@ Parameter      | Use
 IMAGESPERSEC   | Images per second to send - defaults to 10
 TOTALIMAGES    | Total number of images to send - defaults to 100
 
-Specify -s to subtract image mean from each image value - use for RESNET model
+Specify -s to subtract image mean from each image value - use for ResNet model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
