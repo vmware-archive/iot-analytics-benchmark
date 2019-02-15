@@ -9,20 +9,22 @@ IoT Analytics Benchmark DL consists of neural network-based Deep Learning image 
 The programs run Keras and BigDL image classifiers using pre-trained models and the CIFAR10 image set. For each type of classifier there is a program that sends the images
 as a series of encoded strings and a second program that reads those string, converts them back to images, and infers which of the 10 CIFAR10 classes that image belongs to.
 
-The Keras classifiers are Python-based single node programs for running on an IoT edge gateway.
+The Keras classifier is a Python-based single node program for running on an IoT edge gateway.
 
-The BigDL classifiers are Spark-based distributed programs.
+The BigDL classifiers (Python and Scala versions) are Spark-based distributed programs using Spark Streaming to read and infer the input encoded images.
 
-Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and  
-CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html   
-(Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
+Uses Intel's BigDL library (see <https://github.com/intel-analytics/BigDL-Tutorials>) and  
+CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>   
+(Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, <https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf>)
 
 ## Installation
 
-- Install Spark (Spark 2.4.0 Standalone tested here)
+- Install Spark 
    - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+   - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
 - Install python3 on all nodes, add numpy, keras and tensorflow with pip
+  - see 
 
 - Install nc on driver node (`yum install nc`)
 
