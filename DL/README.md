@@ -19,10 +19,6 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
 ## Installation
 
-- Install Spark 
-  - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
-  - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
-
 - Install python3 and pip3 on all nodes, add numpy, keras and tensorflow with pip3  
 
   Example on Centos 7:
@@ -32,10 +28,23 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
   ln -s /usr/bin/python3.6 /usr/bin/python3
   ln -s /usr/bin/pip3.6 /usr/bin/pip3
   pip3 install --upgrade pip
-  pip3 install numpy keras ipython tensorflow
+  pip3 install numpy keras tensorflow
   ```
 
 - Install nc on driver node (`yum install nc`)
+
+- For the Spark and BigDL programs:
+
+- Install Spark 
+  - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+  - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
+
+- Install BigDL (Version 0.7.0 for Spark 2.3.1 tested here)
+  - Download from https://repo1.maven.org/maven2/com/intel/analytics/bigdl/dist-spark-2.3.1-scala-2.11.8-all/0.7.0/dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
+  ```
+  unzip dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
+  pip3 install BigDL==0.7.0
+  ```
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
   `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
@@ -189,12 +198,11 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 Compile Scala code into assembly with dependencies included:
 
-- Install Scala (2.11.8 tested)
-
-- Modify `build.sbt` for correct version of Scala and Spark
+- Install Scala (2.11.8 tested) and SBT (1.1.0 tested)
 
   ```
   cd <path>/iot-analytics-benchmark-master/DL/scala
+  <Modify build.sbt for correct Spark and Scala versions if necessary>
   mkdir project
   mv assembly.sbt project
   sbt assembly
