@@ -271,5 +271,5 @@ Saved trained model using trained_model.saveModel
 
 ### bigdl_resnet_model_893
 
-Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala for 100 epochs
+Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala for 100 epochs  
 Used model saved by checkpoint after 100 eposchs.
