@@ -136,9 +136,9 @@ Specify -s to subtract image mean from each image value - use for ResNet model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
-`export SPARK_HOME=/root/spark`
-`export PYSPARK_PYTHON=python3`
-`spark-submit <Spark params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`  
+`export SPARK_HOME=/root/spark`  
+`export PYSPARK_PYTHON=python3`  
+`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`  
 `  [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
 
 where:
@@ -193,24 +193,29 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 In one shell:
 
-`java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \`
+`java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \`  
 `  com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream <arguments> | nc -lk <port>`
 
 Arguments:
+```
   -f, --folder <value>        the location of Cifar10 dataset  Default: datasets/cifar-10-batches-bin
   -i, --imagesPerSec <value>  images per second                Default: 10
   -t, --totalImages <value>   total images                     Default: 100
+```
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell:
 
-`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
-    <path>/iotstreamdl_2.11-0.0.1.jar <arguments>
-  Arguments:
+`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \`  
+`  --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream <path>/iotstreamdl_2.11-0.0.1.jar <arguments>`
+
+Arguments:
+```
   -r <value> | --reportingInterval <value> reporting interval (sec)   Default: 1
   -i <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1
   -p <value> | --sourcePort <value>        source port                Default: 10000
   -m <value> | --model <value>             model                      Required
   -b <value> | --batchSize <value>         batch size                 Default: 2000
+```
 
 Example
 
