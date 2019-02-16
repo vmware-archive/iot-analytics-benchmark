@@ -27,12 +27,12 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
   Example on Centos 7:
   ```
-  $ yum install https://centos7.iuscommunity.org/ius-release.rpm
-  $ yum install python36u python36u-pip
-  $ ln -s /usr/bin/python3.6 /usr/bin/python3
-  $ ln -s /usr/bin/pip3.6 /usr/bin/pip3
-  $ pip3 install --upgrade pip
-  $ pip3 install numpy keras ipython tensorflow
+  yum install https://centos7.iuscommunity.org/ius-release.rpm
+  yum install python36u python36u-pip
+  ln -s /usr/bin/python3.6 /usr/bin/python3
+  ln -s /usr/bin/pip3.6 /usr/bin/pip3
+  pip3 install --upgrade pip
+  pip3 install numpy keras ipython tensorflow
   ```
 
 - Install nc on driver node (`yum install nc`)
@@ -66,6 +66,8 @@ File                                  | Use
 `infer_cifar_stream.scala`            | Spark Streaming BigDL scala program to classify CIFAR10 images using ResNet model
 `send_images_cifar_stream.scala`      | Send images to infer_cifar_stream.scala
 `bigdl_resnet_model_893`              | Trained ResNet model for Scala BigDL program - 89.3% accurate
+`build.sbt`                           | SBT build file
+`assembly.sbt`                        | SBT assembly file
 `README.md`                           | This file
 
 
@@ -185,11 +187,25 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 ### Spark Streaming BigDL ResNet CIFAR10 Scala image classifier
 
+Compile Scala code into assembly with dependencies included:
+
+- Install Scala (2.11.8 tested)
+
+- Modify `build.sbt` for correct version of Scala and Spark
+
+  ```
+  cd scala
+  mkdir project
+  mv assembly.sbt project
+  sbt assembly
+  ```
+- Creates `iotstreamdl-assembly-0.0.1.jar`
+
 In one shell:
 
 ```
-java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \
-  com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream <arguments> | nc -lk <port>
+java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
+  <arguments> | nc -lk <port>
 ```
 
 Arguments:
@@ -202,24 +218,24 @@ Arguments:
 Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell:
 
 ```
-spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \
-  --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream <path>/iotstreamdl_2.11-0.0.1.jar <arguments>
+spark-submit <Spark config params> --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
+  <path>/iotstreamdl-assembly-0.0.1.jar <arguments>
 ```
 
 Arguments:
 ```
-  -r <value> | --reportingInterval <value> reporting interval (sec)   Default: 1
-  -i <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1
-  -p <value> | --sourcePort <value>        source port                Default: 10000
-  -m <value> | --model <value>             model                      Required
-  -b <value> | --batchSize <value>         batch size                 Default: 2000
+  -r, --reportingInterval <value> reporting interval (sec)   Default: 1
+  -i, --sourceIPAddress <value>   source IP address          Default: 192.168.1.1
+  -p, --sourcePort <value>        source port                Default: 10000
+  -m, --model <value>             model                      Required
+  -b, --batchSize <value>         batch size                 Default: 2000
 ```
 
 Example
 
 ```
-java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \
-com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream -i 12000 -t 1000000 | nc -lk 10000
+$ java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
+  -i 12000 -t 1000000 | nc -lk 10000
 Will send 12000 images per second for a total of 1000000 images
 Pausing 15 seconds - start image_cifar_stream
 2019-02-15T23:33:01.873Z: Sending images
@@ -228,10 +244,9 @@ Pausing 15 seconds - start image_cifar_stream
 2019-02-15T23:38:03.182Z: Sent 1000000 images in 301.3 seconds
 
 
-spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
---executor-memory 104g --jars ~/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \
---class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl_2.11-0.0.1.jar \
--model bigdl_resnet_model_893 -reportingInterval 25
+$ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
+--executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl-assebmly-0.0.1.jar \
+--model bigdl_resnet_model_893 --reportingInterval 25
 2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
 2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146 correct
 2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 correct
@@ -271,5 +286,5 @@ Saved trained model using trained_model.saveModel
 
 ### bigdl_resnet_model_893
 
-Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala for 100 epochs  
-Used model saved by checkpoint after 100 eposchs.
+Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala
+Used model saved by checkpoint after 100 epochs.
