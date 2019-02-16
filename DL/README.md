@@ -252,7 +252,7 @@ Pausing 15 seconds - start image_cifar_stream
 
 
 $ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
---executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl-assebmly-0.0.1.jar \
+--executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl-assembly-0.0.1.jar \
 --model bigdl_resnet_model_893 --reportingInterval 25
 2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
 2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146 correct
@@ -293,5 +293,5 @@ Saved trained model using trained_model.saveModel
 
 ### bigdl_resnet_model_893
 
-Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala
+Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala  
 Used model saved by checkpoint after 100 epochs.
