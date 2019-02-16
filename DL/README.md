@@ -229,10 +229,9 @@ Pausing 15 seconds - start image_cifar_stream
 
 
 spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
-spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
 --executor-memory 104g --jars ~/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \
 --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl_2.11-0.0.1.jar \
--m bigdl_resnet_model_893 -r 25
+-model bigdl_resnet_model_893 -reportingInterval 25
 2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
 2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146 correct
 2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 correct
