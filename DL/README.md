@@ -136,8 +136,10 @@ Specify -s to subtract image mean from each image value - use for ResNet model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
+`export SPARK_HOME=/root/spark`
+`export PYSPARK_PYTHON=python3`
 `spark-submit <Spark params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`  
-` [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
+`  [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
 
 where:
 
@@ -162,7 +164,9 @@ Using TensorFlow backend.
 2019-01-31T15:56:14Z: 1000000 images sent
 2019-01-31T15:56:14Z: Image stream ended - keeping socket open for 120 seconds
 
-$ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 -r 25
+$ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
+--executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \
+--modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 -r 25
 Prepending /usr/lib/python3.6/site-packages/bigdl/share/conf/spark-bigdl.conf to sys.path
 Using TensorFlow backend.
 cls.getname: com.intel.analytics.bigdl.python.api.Sample
@@ -184,6 +188,61 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 2019-01-31T15:57:07.422Z: 1000000 images received in 116.0 seconds (5 intervals), or 8619 images/second  Correct predictions: 800700  Pct correct: 80.1
 ```
+
+### Spark Streaming BigDL ResNet CIFAR10 Scala image classifier
+
+In one shell:
+
+`java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \`
+`  com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream <arguments> | nc -lk <port>`
+
+Arguments:
+  -f, --folder <value>        the location of Cifar10 dataset  Default: datasets/cifar-10-batches-bin
+  -i, --imagesPerSec <value>  images per second                Default: 10
+  -t, --totalImages <value>   total images                     Default: 100
+
+Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell:
+
+`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
+    <path>/iotstreamdl_2.11-0.0.1.jar <arguments>
+  Arguments:
+  -r <value> | --reportingInterval <value> reporting interval (sec)   Default: 1
+  -i <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1
+  -p <value> | --sourcePort <value>        source port                Default: 10000
+  -m <value> | --model <value>             model                      Required
+  -b <value> | --batchSize <value>         batch size                 Default: 2000
+
+Example
+
+```
+java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \
+com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream -i 12000 -t 1000000 | nc -lk 10000
+Will send 12000 images per second for a total of 1000000 images
+Pausing 15 seconds - start image_cifar_stream
+2019-02-15T23:33:01.873Z: Sending images
+2019-02-15T23:36:13.264Z: 12000 images sent
+...
+2019-02-15T23:38:03.182Z: Sent 1000000 images in 301.3 seconds
+
+
+spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
+spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
+--executor-memory 104g --jars ~/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \
+--class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl_2.11-0.0.1.jar \
+-m bigdl_resnet_model_893 -r 25
+2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
+2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146 correct
+2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 correct
+2019-02-15T23:37:17.207Z: 224655 images received in interval - 25921 correct
+2019-02-15T23:37:42.101Z: 225453 images received in interval - 23766 correct
+2019-02-15T23:38:07.050Z: 225521 images received in interval - 23067 correct
+2019-02-15T23:38:24.866Z: 75748 images received in interval - 8150 correct
+2019-02-15T23:38:45.003Z: No input
+2019-02-15T23:38:45.003Z: Stopping stream
+
+2019-02-15T23:38:47.424Z: 1000000 images received in 128.6 seconds (6 intervals), or 7777 images/second. 106976 of 1000000 correctly inferred or 10.7%
+```
+
 ## Where do trained models come from?
 
 ### keras_cifar10_trained_model_78.h5
