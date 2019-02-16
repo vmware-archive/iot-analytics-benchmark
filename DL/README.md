@@ -244,6 +244,7 @@ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.core
 
 2019-02-15T23:38:47.424Z: 1000000 images received in 128.6 seconds (6 intervals), or 7777 images/second. 106976 of 1000000 correctly inferred or 10.7%
 ```
+**NOTE: BigDL module.predictClass appears to lose accuracy under load with Spark Streaming**
 
 ## Where do trained models come from?
 
@@ -267,3 +268,8 @@ Created program based on https://github.com/intel-analytics/BigDL/blob/master/py
 Modified for CIFAR10 using convnet from https://github.com/keras-team/keras/blob/master/examples/cifar10_cnn.py, modified for Keras 1.2.2  
 Ran to an accuracy target of 80%  
 Saved trained model using trained_model.saveModel 
+
+### bigdl_resnet_model_893
+
+Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala for 100 epochs
+Used model saved by checkpoint after 100 eposchs.

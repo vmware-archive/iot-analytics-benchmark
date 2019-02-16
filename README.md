@@ -6,9 +6,9 @@
 
 Iot Analytics Benchmark is a simulation of two types of analytics run against a stream of Internet-of-Things data
 
-IoT Analytics Benchmark ML consists of Spark MLLib-based Machine Learning data analytic programs run on a stream of sensor data
+IoT Analytics Benchmark ML(./ML) consists of Spark MLLib-based Machine Learning data analytic programs run on a stream of sensor data
 
-IoT Analytics Benchmark DL consists of neural network-based Deep Learning image classification programs run on a stream of images
+IoT Analytics Benchmark DL(./DL) consists of neural network-based Deep Learning image classification programs run on a stream of images
 
 ## Releases & Major Branches
 
