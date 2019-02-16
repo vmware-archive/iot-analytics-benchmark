@@ -77,8 +77,6 @@ In one shell, `cd <path>/iot-analytics-benchmark-master/DL/python`, then:
 
 `nc -lk <port> | python3 infer_cifar.py [-h] -m MODELPATH [-r REPORTINGINTERVAL]`
 
-where:
-
 Parameter          | Use
 :---------         | :---
 MODELPATH          | Location of trained model file - required
@@ -87,8 +85,6 @@ REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
 Wait for program to output "Start send program" then, in a second shell in the same directory:
 
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
-
-where:
 
 Parameter      | Use
 :---------     | :---
@@ -125,8 +121,6 @@ In one shell, `cd <path>/iot-analytics-benchmark-master/DL/python`, then:
 
 `python3 send_images_cifar_stream.py [-h] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc -lk <port>`
 
-where:
-
 Parameter      | Use
 :---------     | :---
 IMAGESPERSEC   | Images per second to send - defaults to 10
@@ -136,12 +130,12 @@ Specify -s to subtract image mean from each image value - use for ResNet model
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
 
-`export SPARK_HOME=/root/spark`  
-`export PYSPARK_PYTHON=python3`  
-`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \`  
-`  [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]`
-
-where:
+```
+export SPARK_HOME=/root/spark
+export PYSPARK_PYTHON=python3
+spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \  
+  [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]
+```
 
 Parameter          | Use
 :---------         | :---
@@ -193,8 +187,10 @@ BigDLBasePickler registering: bigdl.util.common  JActivity
 
 In one shell:
 
-`java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \`  
-`  com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream <arguments> | nc -lk <port>`
+```
+java -Xmx128g -cp <path>/scala-library.jar:<path>/hadoop-common-3.0.0.jar:<path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar:<path>/iotstreamdl_2.11-0.0.1.jar \
+  com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream <arguments> | nc -lk <port>
+```
 
 Arguments:
 ```
@@ -205,8 +201,10 @@ Arguments:
 
 Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell:
 
-`spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \`  
-`  --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream <path>/iotstreamdl_2.11-0.0.1.jar <arguments>`
+```
+spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar \
+  --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream <path>/iotstreamdl_2.11-0.0.1.jar <arguments>
+```
 
 Arguments:
 ```
