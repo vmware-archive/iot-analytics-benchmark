@@ -194,14 +194,14 @@ Compile Scala code into assembly with dependencies included:
 - Modify `build.sbt` for correct version of Scala and Spark
 
   ```
-  cd scala
+  cd <path>/iot-analytics-benchmark-master/DL/scala
   mkdir project
   mv assembly.sbt project
   sbt assembly
   ```
 - Creates `iotstreamdl-assembly-0.0.1.jar`
 
-In one shell:
+To run, in one shell:
 
 ```
 java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
