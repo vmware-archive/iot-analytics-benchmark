@@ -40,11 +40,10 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
   - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
 - Install BigDL (Version 0.7.0 for Spark 2.3.1 tested here)
-  - Download from https://repo1.maven.org/maven2/com/intel/analytics/bigdl/dist-spark-2.3.1-scala-2.11.8-all/0.7.0/dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
-  ```
-  unzip dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
-  pip3 install BigDL==0.7.0
-  ```
+  - Download BigDL from https://repo1.maven.org/maven2/com/intel/analytics/bigdl/dist-spark-2.3.1-scala-2.11.8-all/0.7.0/dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
+  - Then, `unzip dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip`
+  - You will use `lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar` in commands below
+  - Finally, `pip3 install BigDL==0.7.0`
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
   `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
