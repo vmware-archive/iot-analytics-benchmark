@@ -11,14 +11,16 @@ This product is licensed to you under the Apache 2.0 license (the "License").  Y
 This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
 """
 
+from __future__ import print_function
+
 import os, sys
-from time import time, gmtime, strftime
+from time import gmtime, strftime
 from pyspark import SparkConf, SparkContext
 from pyspark.mllib.classification import LogisticRegressionWithLBFGS, LogisticRegressionModel
 from pyspark.mllib.regression import LabeledPoint
 
 if len(sys.argv) != 5:
-  print >> sys.stderr, "Usage: spark-submit iottrain_lr.py HDFS_or_S3 HDFS_path_or_S3_bucket filename modelname"
+  print("Usage: spark-submit iottrain_lr.py HDFS_or_S3 HDFS_path_or_S3_bucket filename modelname", file=sys.stderr)
   exit(-1)
 
 if sys.argv[1].capitalize() == 'S3':
@@ -28,9 +30,7 @@ else:
   ifilename = "{}/{}".format(sys.argv[2], sys.argv[3])
   ofilename = "{}/{}".format(sys.argv[2], sys.argv[4])
 
-print "%sZ: Training logistic regression model and storing as %s using data from %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, ifilename)
-
-start_time = time()
+print("%sZ: Training logistic regression model and storing as %s using data from %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, ifilename))
 
 # Load and parse the data
 def parsePoint(line):
@@ -46,7 +46,7 @@ parsedData = data.map(parsePoint)
 model = LogisticRegressionWithLBFGS.train(parsedData)
 
 # Save model
-print "%sZ: Trained logistic regression model and storing as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename)
+print("%sZ: Trained logistic regression model and storing as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename))
 model.save(sc, ofilename)
-elapsed_time = time() - start_time
-print "%sZ: Trained logistic regression model and stored as %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, elapsed_time)
+
+print("%sZ: Trained logistic regression model and stored as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename))

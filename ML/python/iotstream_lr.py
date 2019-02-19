@@ -16,6 +16,8 @@ This product is licensed to you under the Apache 2.0 license (the "License").  Y
 This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
 """
 
+from __future__ import print_function
+
 import sys
 import numpy as np
 from time import time, gmtime, strftime, sleep
@@ -24,7 +26,7 @@ from pyspark.streaming import StreamingContext
 from pyspark.mllib.classification import LogisticRegressionModel
 
 if len(sys.argv) != 8:
-    print >> sys.stderr, "Usage: iotstream_lr.py n_sensors reporting_interval IP_address_of_stream_source Port_of_stream_source HDFS_or_S3 HDFS_path_or_S3_bucket modelname"
+    print("Usage: iotstream_lr.py n_sensors reporting_interval IP_address_of_stream_source Port_of_stream_source HDFS_or_S3 HDFS_path_or_S3_bucket modelname", file=sys.stderr)
     exit(-1)
 
 n_sensors = int(sys.argv[1])
@@ -37,7 +39,7 @@ if sys.argv[5].capitalize() == 'S3':
 else:
   modelname = "{}/{}".format(sys.argv[6], sys.argv[7])
 
-print '%s.%03dZ: Analyzing stream of input from host %s on port %d using LR model %s, with %.1f second intervals' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, IP_address, port, modelname, reporting_interval)
+print('%s.%03dZ: Analyzing stream of input from host %s on port %d using LR model %s, with %.1f second intervals' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, IP_address, port, modelname, reporting_interval))
 
 def run_model(rdd):
   last_batch = False
@@ -45,7 +47,7 @@ def run_model(rdd):
 # This code combines the lines in each batch into a feature vector containing the latest sensor values
   if rdd.count() == 0:
     empty_intervals.add(1)
-    print "No input"
+    print("No input")
   else:
   # Each line of input has format Timestamp (string), sensor number (integer), sensor name (string), sensor value (float), eg
   # 2017-12-14T22:22:43.895Z,19,Sensor 19,0.94764
@@ -62,9 +64,9 @@ def run_model(rdd):
     events.add(len(input))
   # If model predicts True warn user in red
     if (model.predict(features)):
-      print '\033[31m%s.%03dZ: Interval %d: Attention needed (%d sensor events in interval)\033[0m' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, len(input))
+      print('\033[31m%s.%03dZ: Interval %d: Attention needed (%d sensor events in interval)\033[0m' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, len(input)))
     else:
-      print '%s.%03dZ: Interval %d: Everything is OK (%d sensor events in interval)' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, len(input))
+      print('%s.%03dZ: Interval %d: Everything is OK (%d sensor events in interval)' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, len(input)))
     if last_batch:
       ssc.stop()
 
@@ -93,4 +95,4 @@ start_time = time()
 ssc.awaitTermination()
 finish_time = time()
 elapsed_time = finish_time - start_time - empty_intervals.value*reporting_interval - 1.5 # Subtract off time waiting for events and 1.5 sec for termination
-print '\n%s.%03dZ: %d events received in %.1f seconds (%d intervals), or %.0f sensor events/second\n' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, events.value-1,  elapsed_time, interval.value, float(events.value-1)/elapsed_time)
+print('\n%s.%03dZ: %d events received in %.1f seconds (%d intervals), or %.0f sensor events/second\n' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, events.value-1,  elapsed_time, interval.value, float(events.value-1)/elapsed_time))

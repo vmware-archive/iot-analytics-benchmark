@@ -9,17 +9,18 @@ This product is licensed to you under the Apache 2.0 license (the "License").  Y
 
 This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
 """
+from __future__ import print_function
 
 import sys, random
 
 if len(sys.argv) != 3:
-  print >> sys.stderr, "Usage: python calc_cutoffs.py n_rows n_sensors"
+  print("Usage: python calc_cutoffs.py n_rows n_sensors", file=sys.stderr)
   exit(-1)
 
 n_rows = int(sys.argv[1])
 n_sensors = int(sys.argv[2])
 
-print "Cutoffs for {} rows of {} sensors".format(n_rows, n_sensors)
+print("Cutoffs for {} rows of {} sensors".format(n_rows, n_sensors))
 
 scores = []
 for i in range(0, n_rows):
@@ -34,6 +35,6 @@ for i in range(0, n_rows):
   scores.append(score) 
 # Sort scores and print 100 cutoffs
 scores.sort()
-cutoffs = scores[n_rows/100::n_rows/100]
+cutoffs = scores[int(n_rows/100)::int(n_rows/100)]
 for p in range(99):
-  print '%d %.0f' % (99-p, cutoffs[p])
+  print('%d %.0f' % (99-p, cutoffs[p]))

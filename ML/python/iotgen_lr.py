@@ -13,14 +13,15 @@ This product is licensed to you under the Apache 2.0 license (the "License").  Y
  
 This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
 """
+from __future__ import print_function
 
 import sys, random, math
 import numpy as np
-from time import time, gmtime, strftime
+from time import gmtime, strftime
 from pyspark import SparkConf, SparkContext
 
 if not (len(sys.argv) == 7 or len(sys.argv) == 8):
-  print >> sys.stderr, "Usage: spark-submit iotgen_lr.py n_rows n_sensors n_partitions HDFS_or_S3 HDFS_path_or_S3_bucket filename <cutoff>"
+  print("Usage: spark-submit iotgen_lr.py n_rows n_sensors n_partitions HDFS_or_S3 HDFS_path_or_S3_bucket filename <cutoff>", file=sys.stderr)
   exit(-1)
 
 n_rows    = int(sys.argv[1])
@@ -39,10 +40,7 @@ else:
 partition_size = int(math.ceil(float(n_rows)/float(n_partitions)))  # In case n_rows not integer multiple of n_partitions
 n_rows = partition_size * n_partitions
 
-print "%sZ: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, n_rows, n_sensors, cutoff, n_partitions)
-
-sc = SparkContext(appName="iotgen_lr")
-ones = sc.accumulator(0)
+print("%sZ: Creating file %s with %d rows of %d sensors, each row preceded by score using cutoff %.1f, in %d partitions" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, n_rows, n_sensors, cutoff, n_partitions))
 
 def create_sensor_data_partition(i_partition):
   sensor_array = np.zeros((partition_size, n_sensors+1))
@@ -56,23 +54,20 @@ def create_sensor_data_partition(i_partition):
     for s in range (0, n_sensors):
       score += sensors[s]*(s+1)
     # Assign a label 
-    if (score > cutoff):
-      sensors.insert(0, 1) 
-      ones.add(1)
-    else:
-      sensors.insert(0, 0) 
+    label =  [0,1] [score > cutoff]
+    sensors.insert(0, label) 
     sensor_array[i] = sensors
   return sensor_array
 
 def toCSVLine(data):
   return ','.join('%.5f'% d for d in data)
 
-start_time = time()
+sc = SparkContext(appName="iotgen_lr")
+
 # Create an RDD with n_partitions elements, send each to create_sensor_data_partition, combine results, convert to CSV output and save to ofilename
 r = sc.parallelize(range(n_partitions), n_partitions)
 lines = r.map(create_sensor_data_partition).flatMap(lambda a: a.tolist()).map(toCSVLine)
 lines.saveAsTextFile(ofilename)
-elapsed_time = time() - start_time
 
 size = float((n_sensors+1)*8*n_rows)
 KiB,MiB,GiB,TiB = pow(2,10),pow(2,20),pow(2,30),pow(2,40)
@@ -86,4 +81,4 @@ elif (size >= KiB):
   size_str = "%.1fKB" % (size/KiB) 
 else:
   size_str = "%d" % size
-print "%sZ: Created file %s with size %s in %.1f seconds with %d ones (%.1f%%)" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str, elapsed_time, ones.value, (100.0*ones.value)/float(n_rows))
+print("%sZ: Created file %s with size %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str))

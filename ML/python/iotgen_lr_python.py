@@ -10,11 +10,12 @@ This product is licensed to you under the Apache 2.0 license (the "License").  Y
 
 This product may include a number of subcomponents with separate copyright notices and license terms. Your use of these subcomponents is subject to the terms and conditions of the subcomponent's license, as noted in the LICENSE file.
 """
+from __future__ import print_function
 
 import sys, csv, random
 
 if not (len(sys.argv) == 4 or len(sys.argv) == 5):
-  print >> sys.stderr, "Usage: python iotgen_lr.py n_rows n_sensors csv_output_filename <cutoff>"
+  print("Usage: python iotgen_lr.py n_rows n_sensors csv_output_filename <cutoff>", file=sys.stderr)
   exit(-1)
 
 n_rows = int(sys.argv[1])
@@ -26,7 +27,7 @@ if len(sys.argv) == 5:
 else:
   cutoff = int(.25 * n_sensors * (n_sensors+1))
 
-print "Creating file {} with {} rows of {} sensors, each row preceded by score using cutoff {}".format(ofilename, n_rows, n_sensors, cutoff)
+print("Creating file {} with {} rows of {} sensors, each row preceded by score using cutoff {}".format(ofilename, n_rows, n_sensors, cutoff))
 
 def toCSVLine(data):
   return ','.join('%.5f'% d for d in data)
@@ -59,4 +60,4 @@ elif (size >= KiB):
   size_str = "%.1fKB" % (size/KiB)
 else:
   size_str = "%d" % size
-print "Created file {} with size {}".format(ofilename, size_str)
+print("Created file {} with size {}".format(ofilename, size_str))
