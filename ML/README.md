@@ -42,7 +42,7 @@ All programs are in Python or Scala.
 
 - Add spark/bin directory to `$PATH`.  For example:
 
-  edit ~/.bashrc
+  edit `~/.bashrc`  
   add `export PATH=$PATH:/root/spark/bin`
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
@@ -206,7 +206,7 @@ Explanation:
 - `sim_sensors_lr.py` generates 100 sensor events per second ranging over 100 sensors, for 60 seconds (6000 events)
     Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
 - `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
-    combines the inputs for that interval into 100-long vectors of sensors values, and runs those vectors through Logistic Regression  
+    combines the inputs for that interval into 100-long vectors of sensors values, and runs those vectors through Logistic Regression
     model `lr100`, printing whether the input is OK or attention is needed.
     If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
 
@@ -282,27 +282,18 @@ In a 2nd shell on the same or different servers:
 ...
 2018-03-01T21:08:12Z: 6000 events received in 48.3 seconds (47 intervals), or 124 sensor events/second
 ```
-## Compiling Scala code
+## Compile Scala code into assembly with dependencies included:
 
-- Install Scala (2.10.6 and 2.11.8 tested)
+- Install Scala (2.11.8 tested) and SBT (1.1.0 tested)
 
-- Modify build.sbt for correct version of Scala and Spark
-
-- To create package with external dependencies:
-```
-cd scala
-sbt package
-```
-Creates `iotstream_2.11-0.0.1.jar`
-
-- To create assembly which can be used standalone:
-
-```
-cd scala
-cp build.sbt.assembly build.sbt
-sbt assembly
-```
-Creates `iotstream-assembly-0.0.1.jar`
+  ```
+  cd <path>/iot-analytics-benchmark-master/ML/scala
+  <Modify build.sbt for correct Spark and Scala versions if necessary>
+  mkdir project
+  mv assembly.sbt project
+  sbt assembly
+  ```
+- Creates `iotstreamml-assembly-0.0.1.jar`
 
 ## Kafka/Scala version
 
