@@ -40,7 +40,10 @@ All programs are in Python or Scala.
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
     `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
 
-- Add spark/bin directory to `$PATH`
+- Add spark/bin directory to `$PATH`.  For example:
+
+  edit ~/.bashrc
+  add `export PATH=$PATH:/root/spark/bin`
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
 
@@ -187,8 +190,8 @@ python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
     
 In a 2nd shell on the same or different server:
     
-spark-submit iotstream_lr.py 100 1 192.168.1.2 20000 local sd lr100
-2018-03-01T17:23:33Z: Analyzing stream of input from host 192.168.1.2 on port 20000 using LR model sd/lr100, with 1.0 second intervals
+spark-submit iotstream_lr.py 100 1 192.168.1.1 20000 local sd lr100
+2018-03-01T17:23:33Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model sd/lr100, with 1.0 second intervals
 2018-03-01T17:23:39.408Z: Interval 1: Everything is OK (104 sensor events in interval)
 ...
 2018-03-01T17:23:46.124Z: Interval 8: Attention needed (99 sensor events in interval)
@@ -202,7 +205,7 @@ Explanation:
 - `iottrain_lr.py` trains model `sd/lr100` using that data
 - `sim_sensors_lr.py` generates 100 sensor events per second ranging over 100 sensors, for 60 seconds (6000 events)
     Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
-- `iotstream_lr.py` connects to the socket at IP 192.168.1.2 port 20000, batches the inputs in 1 second intervals,
+- `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
     combines the inputs for that interval into 100-long vectors of sensors values, and runs those vectors through Logistic Regression  
     model `lr100`, printing whether the input is OK or attention is needed.
     If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
@@ -216,12 +219,12 @@ Notes:
   1000 sensor_data1k_100_merged
   ```
 
-- redirect `iotstream_lr.py` std_err output to a file to avoid irrelevant error message:
-     `spark-submit iotstream_lr.py 100 1 192.168.1.2 20000 local sd lr100 2> err.out`
+- Spark Streaming doesn't end cleanly so expect some error messages at the end of the run, even when it completes correctly. To avoid these, redirect std_err output to a file:
+     `spark-submit iotstream_lr.py 100 1 192.168.1.1 20000 local sd lr100 2> err.out`
 
 - in `iotgen_lr.py`, `n_rows` will be adjusted upward if necessary if `n_rows` is not evenly divisble by `n_partitions`
 
-### Spark 1.6.2 with HDFS:
+### Spark with HDFS:
 ```
 spark-submit --num-executors 100 --executor-cores 1 --executor-memory 10g --conf spark.yarn.executor.memoryOverhead=3072 iotgen_lr.py 1000000 1000 500 HDFS sd sensor_data1M_1000
    
@@ -239,12 +242,12 @@ In a 2nd shell on the same or different servers:
  - `iottrain_lr.py` trains model `lr_model1_1000` using that data and stores in same HDFS directory
  - `sim_sensors_lr.py` generates 1000 sensor events per second ranging over 1000 sensors, for 40 seconds (40000 events)
     Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
-- `iotstream_lr.py` connects to the socket at IP 192.168.1.2 port 20000, batches the inputs in 1 second intervals,
+- `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
     combines the inputs for that interval into 1000-long vectors of sensors values, and runs those vectors through Logistic Regression  
     model `lr_model1_1000`, printing whether the input is OK or attention is needed.
     If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
 
-### Spark Standalone on Spark 2.3.0:
+### Spark Standalone with Amazon S3
 
 For S3 add the following lines to `spark/conf/spark-defaults.conf` on the master:
 
@@ -271,8 +274,8 @@ spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.c
 In one shell: 
   python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
 In a 2nd shell on the same or different servers: 
-  spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.cores=4 --executor-memory 40g iotstream_lr.py 100 1 192.168.1.2 20000 S3 davejaffedata lr_model1_100_30
-2018-03-01T21:07:05Z: Analyzing stream of input from host 192.168.1.2 on port 20000 using LR model s3a://davejaffedata/lr_model1_100_30, with 1.0 second intervals
+  spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.cores=4 --executor-memory 40g iotstream_lr.py 100 1 192.168.1.1 20000 S3 davejaffedata lr_model1_100_30
+2018-03-01T21:07:05Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://davejaffedata/lr_model1_100_30, with 1.0 second intervals
 2018-03-01T21:07:24.927Z: Interval 1: Everything is OK (103 sensor events in interval)
 ...
 2018-03-01T21:07:35.161Z: Interval 12: Attention needed (99 sensor events in interval)
@@ -347,8 +350,8 @@ No input  <start sim_sensors (next command)>
 ...
 2018-02-20T06:06:58.380Z: 10000000 events received in 96.4 seconds (96 intervals), or 103764 sensor events/second
 
-java -cp iotstream_2.11-0.0.1.jar:/root/kafka/libs/* com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 192.168.1.2:9092 perf3
-2018-02-20T06:05:20.177Z: Sending 200000 sensor events per second representing 100000 sensors for a total of 10000000 events to Kafka topic perf3 using Kafka server(s) 192.168.1.2:9092
+java -cp iotstream_2.11-0.0.1.jar:/root/kafka/libs/* com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 192.168.1.1:9092 perf3
+2018-02-20T06:05:20.177Z: Sending 200000 sensor events per second representing 100000 sensors for a total of 10000000 events to Kafka topic perf3 using Kafka server(s) 192.168.1.1:9092
 
 2018-02-20T06:05:22.797Z: 200000 events sent
 2018-02-20T06:05:24.685Z: 400000 events sent

@@ -48,7 +48,11 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
   `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
 
-- Add spark/bin directory to `$PATH`
+- Add spark/bin directory to `$PATH`. For example:  
+
+  edit ~/.bashrc
+  add `export PATH=$PATH:/root/spark/bin`
+
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
 
