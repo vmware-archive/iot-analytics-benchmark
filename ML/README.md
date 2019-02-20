@@ -231,9 +231,14 @@ $ export HADOOP_CONF_DIR=/etc/hadoop/conf  # Or wherever your Hadoop configurati
 
 $ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
 --executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
+2019-02-20T21:04:05Z: Creating file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
+2019-02-20T21:04:53Z: Created file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with size 7.6GB
    
 $ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
 --executor-memory=50g iottrain_lr.py HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
+2019-02-20T21:06:18Z: Training logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000 using data from hdfs://nameservice1/user/root/sd/sensor_data1M_1000
+2019-02-20T21:07:14Z: Trained logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000
+2019-02-20T21:07:15Z: Trained logistic regression model and stored as hdfs://nameservice1/user/root/sd/lr_model1_1000
     
 In one shell:   
   $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
@@ -241,6 +246,12 @@ In one shell:
 In a 2nd shell on the same or different servers: 
   $ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
   --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
+  2019-02-20T21:07:55.781Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model hdfs://nameservice1/user/root/sd/lr_model1_1000, with 1.0 second intervals
+  2019-02-20T21:08:10.373Z: Interval 1: Everything is OK (2010 sensor events in interval)
+  ...
+  2019-02-20T21:08:51.138Z: Interval 43: Attention needed (307 sensor events in interval)
+  2019-02-20T21:08:53.426Z: 40000 events received in 42.9 seconds (43 intervals), or 933 sensor events/second
+
 ``` 
 Explanation:
  
