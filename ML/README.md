@@ -19,28 +19,35 @@ indicating when the impending failure conditions need attention.
 In the real world the data that iotgen simulates would be collected over time from actual conditions. iottrain would be a batch job
 that would be run periodically offline. iotstream is a small program that can be run on a single edge gateway in a factory.
 
-Currently only the Spark Logistic Regression model is supported but we plan to add other machine learning programs.
+Currently only the Spark Logistic Regression model is supported but other machine learning programs can be added to the framework as well.
+
 A simple network connection into Spark Streaming is supported, as well as the Kafka and MQTT message buses.
 All programs are in Python or Scala.
 
 
 ## Installation
 
-- Install Spark (1.6.2 and 2.3.0 tested here) either on a single node or in a cluster (Spark Standalone and Spark on YARN tested)
- - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+- Install Spark either on a single node or in a cluster (Spark Standalone and Spark on YARN tested)
+  - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
+  - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
-- Install python including numpy on all nodes (see below for instructions)
+- Install python including numpy on all nodes
+  - Works with Python2 and Python3
+  - See [IoT Analytics Benchmark DL/README.md](./DL/README.md) for Python3 installation instructions
 
 - Install nc on driver node (`yum install nc`)
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
-    `ln -s /root/spark-2.3.0-bin-hadoop2.7 /root/spark`
+    `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
 
 - Add spark/bin directory to `$PATH`
 
-- Set log level from INFO to ERROR (suggested for cleaner output, especially of iotstream). In `spark/conf`: 
-   `cp log4j.properties.template log4j.properties`  
-   Set `log4j.rootCategory=ERROR, console`
+- Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
+
+  In `spark/conf`:
+  `cp log4j.properties.template log4j.properties`
+  edit `log4j.properties`:
+  `log4j.rootCategory=ERROR, console`
 
 - Clone or download and unzip project
 
@@ -409,15 +416,6 @@ spark-submit --num-executors 200 --executor-cores 1 --executor-memory 12g --conf
 ### The Logistic Regression Model
 
 Since accuracy is not a requirement here, Logistic Regression model uses all default values with no attempts at optimization.
-
-
-### Installing python numpy on Linux:
-
-```
-yum -y install python-pip
-pip install --upgrade pip
-pip install numpy
-```
 
 ### Generating training data without Spark
 
