@@ -281,29 +281,28 @@ wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.3/hadoop-a
 
 ```
 $ spark-submit --master spark://<host>:7077 --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
---conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 S3 davejaffedata sensor_data1M_1000
-2019-02-20T21:57:23Z: Creating file s3a://davejaffedata/sensor_data1M_1000 with 1000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
-2019-02-20T22:17:04Z: Created file s3a://davejaffedata/sensor_data1M_1000 with size 7.6GB
+--conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 S3 s3bucket sensor_data1M_1000
+2019-02-20T21:57:23Z: Creating file s3a://s3bucket/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
+2019-02-20T22:17:04Z: Created file s3a://s3bucket/sensor_data1M_1000 with size 7.6GB
 
 $ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
---conf spark.executor.cores=5 --executor-memory=50g iottrain_lr.py S3 davejaffedata sensor_data1M_1000 lr_model1_1000
-2019-02-20T22:20:08Z: Training logistic regression model and storing as s3a://davejaffedata/lr_model1_1000 using data from s3a://davejaffedata/sensor_data1M_1000
-2019-02-20T22:20:46Z: Trained logistic regression model and storing as s3a://davejaffedata/lr_model1_1000
-2019-02-20T22:21:07Z: Trained logistic regression model and stored as s3a://davejaffedata/lr_model1_1000
+--conf spark.executor.cores=5 --executor-memory=50g iottrain_lr.py S3 s3bucket sensor_data1M_1000 lr_model1_1000
+2019-02-20T22:20:08Z: Training logistic regression model and storing as s3a://s3bucket/lr_model1_1000 using data from s3a://s3bucket/sensor_data1M_1000
+2019-02-20T22:20:46Z: Trained logistic regression model and storing as s3a://s3bucket/lr_model1_1000
+2019-02-20T22:21:07Z: Trained logistic regression model and stored as s3a://s3bucket/lr_model1_1000
 
 In one shell:
   $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
 
 In a 2nd shell on the same or different servers:
   $ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
-  --conf spark.executor.cores=5 --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 S3 davejaffedata lr_model1_1000
+  --conf spark.executor.cores=5 --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 S3 s3bucket lr_model1_1000
 
-2019-02-20T22:29:52.044Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://davejaffedata/lr_model1_1000, with 1.0 second intervals
+2019-02-20T22:29:52.044Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://s3bucket/lr_model1_1000, with 1.0 second intervals
 19/02/20 22:29:52 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
 19/02/20 22:29:54 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
 2019-02-20T22:30:15.955Z: Interval 1: Attention needed (1457 sensor events in interval)
 ...
-2019-02-20T22:30:20.621Z: Interval 6: Everything is OK (917 sensor events in interval)
 2019-02-20T22:30:57.145Z: Interval 43: Everything is OK (853 sensor events in interval)
 2019-02-20T22:30:59.430Z: 40000 events received in 43.4 seconds (43 intervals), or 922 sensor events/second
 ```
