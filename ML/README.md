@@ -44,10 +44,10 @@ All programs are in Python or Scala.
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
 
-  In `spark/conf`:
-  `cp log4j.properties.template log4j.properties`
-  edit `log4j.properties`:
-  `log4j.rootCategory=ERROR, console`
+  In `spark/conf`:  
+  `cp log4j.properties.template log4j.properties`  
+  edit `log4j.properties`:  
+  `log4j.rootCategory=ERROR, console`  
 
 - Clone or download and unzip project
 
@@ -196,9 +196,11 @@ Explanation:
 Notes:
 
 - in local mode data is created in separate partitions, as in HDFS. To create single file:
-    `cat sd/sensor_data1k_100/part* > sensor_data1k_100_merged`  
-    `wc -l sensor_data1k_100_merged`  
-    `1000 sensor_data1k_100_merged`  
+  ```
+  cat sd/sensor_data1k_100/part* > sensor_data1k_100_merged
+  wc -l sensor_data1k_100_merged
+  1000 sensor_data1k_100_merged
+  ```
 
 - redirect `iotstream_lr.py` std_err output to a file to avoid irrelevant error message:
      `spark-submit iotstream_lr.py 100 1 192.168.1.2 20000 local sd lr100 2> err.out`
