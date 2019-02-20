@@ -224,9 +224,12 @@ Notes:
 
 - in `iotgen_lr.py`, `n_rows` will be adjusted upward if necessary if `n_rows` is not evenly divisble by `n_partitions`
 
-### Spark with HDFS:
+### Spark Standalone with HDFS storage:
+
 ```
-spark-submit --num-executors 100 --executor-cores 1 --executor-memory 10g --conf spark.yarn.executor.memoryOverhead=3072 iotgen_lr.py 1000000 1000 500 HDFS sd sensor_data1M_1000
+export HADOOP_CONF_DIR=/etc/hadoop/conf
+
+spark-submit --master spark://192.168.1.1:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
    
 spark-submit --num-executors=20 --executor-cores=5 --executor-memory=50g iottrain_lr.py HDFS sd sensor_data1M_1000 lr_model1_1000
     
