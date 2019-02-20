@@ -227,28 +227,31 @@ Notes:
 ### Spark Standalone with HDFS storage:
 
 ```
-export HADOOP_CONF_DIR=/etc/hadoop/conf
+export HADOOP_CONF_DIR=/etc/hadoop/conf  # Or wherever your Hadoop configuration files are
 
-spark-submit --master spark://192.168.1.1:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
+spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
+--executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
    
-spark-submit --num-executors=20 --executor-cores=5 --executor-memory=50g iottrain_lr.py HDFS sd sensor_data1M_1000 lr_model1_1000
+spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
+--executor-memory=50g iottrain_lr.py HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
     
 In one shell:   
   python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
       
 In a 2nd shell on the same or different servers: 
-  spark-submit --num-executors=20 --executor-cores=5 --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 HDFS sd lr_model1_1000
+  spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
+  --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
 ``` 
- Explanation:
+Explanation:
  
-  - `iotgen_lr.py` creates 1M rows w/ 1000 sensors each, in 500 partitions (5 per executor), with 50% '1' labels, and stores in HDFS as `/user/<username>/sd/sensor_data1M_1000``
- - `iottrain_lr.py` trains model `lr_model1_1000` using that data and stores in same HDFS directory
- - `sim_sensors_lr.py` generates 1000 sensor events per second ranging over 1000 sensors, for 40 seconds (40000 events)
-    Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
-- `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
-    combines the inputs for that interval into 1000-long vectors of sensors values, and runs those vectors through Logistic Regression  
-    model `lr_model1_1000`, printing whether the input is OK or attention is needed.
-    If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
+  - `iotgen_lr.py` creates 1M rows w/ 1000 sensors each, in 500 partitions (2 per executor), with 50% '1' labels, and stores in HDFS as `/user/root/sd/sensor_data1M_1000`
+  - `iottrain_lr.py` trains model `lr_model1_1000` using that data and stores in same HDFS directory
+  - `sim_sensors_lr.py` generates 1000 sensor events per second ranging over 1000 sensors, for 40 seconds (40000 events)
+     Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
+  - `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
+     combines the inputs for that interval into 1000-long vectors of sensors values, and runs those vectors through Logistic Regression  
+     model `lr_model1_1000`, printing whether the input is OK or attention is needed.
+     If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
 
 ### Spark Standalone with Amazon S3
 
