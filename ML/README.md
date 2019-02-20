@@ -80,10 +80,16 @@ File                         | Use
 
 ## Program usage (run any program without parameters to show):
 
+First:
+
 ```
 export SPARK_HOME=/root/spark
 export PYSPARK_PYTHON=python3  # Set this to whatever python binary you are using
 cd <path>/iot-analytics-benchmark-master/ML/python
+```
+
+### iotgen_lr.py
+```
 spark-submit iotgen_lr.py n_rows n_sensors n_partitions_ HDFS_or_S3 HDFS_path_or_S3_bucket filename <cutoff>
 ```
 
@@ -99,6 +105,7 @@ HDFS\_path\_or\_S3_bucket | HDFS path or S3 bucket
 filename     | training data file name
 cutoff       | optional parameter to control number % of '1' labels - if omitted will get approx. 50% - see below
 
+### iottrain_lr.py
 `spark-submit iottrain_lr.py HDFS_or_S3 HDFS_path_or_S3_bucket filename modelname`
 
 where:
@@ -110,6 +117,7 @@ HDFS\_path\_or\_S3_bucket | HDFS path or S3 bucket
 filename     | training data file name
 modelname    | trained model file name, stored in same location as training data
 
+### iotstream_lr.py
 `spark-submit iotstream_lr.py n_sensors reporting_interval IP_address_of_stream_source Port_of_stream_source HDFS_or_S3 HDFS_path_or_S3_bucket modelname`
 
 where:
@@ -124,6 +132,7 @@ HDFS\_or_S3   | where to obtain trained model
 HDFS\_path\_or\_S3\_bucket | HDFS path or S3 bucket
 modelname    | trained model file name
 
+### sim_sensors_lr.py
 `python sim_sensors_lr.py n_sensors average_sensor_events_per_second total_events`
 
 where:
