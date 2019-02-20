@@ -176,27 +176,27 @@ For multi-node Spark Standalone use `--master local[#cores]` for local files
 ### Spark with single node, no HDFS, local disk:
 
 ```
-spark-submit iotgen_lr.py 1000 100 8 local sd sensor_data1k_100
+$ spark-submit iotgen_lr.py 1000 100 8 local sd sensor_data1k_100
 2018-03-01T17:12:03Z: Creating file sd/sensor_data1k_100 with 1000 rows of 100 sensors, each row preceded by score using cutoff 2525.0, in 8 partitions
 2018-03-01T17:12:06Z: Created file sd/sensor_data1k_100 with size 789.1KB
 
-spark-submit iottrain_lr.py local sd sensor_data1k_100 lr100
+$ spark-submit iottrain_lr.py local sd sensor_data1k_100 lr100
 2018-03-01T17:15:29Z: Training logistic regression model and storing as sd/lr100 using data from sd/sensor_data1k_100
 2018-03-01T17:15:37Z: Trained logistic regression model and stored as sd/lr100
 
 In one shell:
        
-python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
+  $ python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
     
 In a 2nd shell on the same or different server:
     
-spark-submit iotstream_lr.py 100 1 192.168.1.1 20000 local sd lr100
-2018-03-01T17:23:33Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model sd/lr100, with 1.0 second intervals
-2018-03-01T17:23:39.408Z: Interval 1: Everything is OK (104 sensor events in interval)
-...
-2018-03-01T17:23:46.124Z: Interval 8: Attention needed (99 sensor events in interval)
-...
-2018-03-01T17:24:40Z: 6000 events received in 61.1 seconds (60 intervals), or 98 sensor events/second
+  $ spark-submit iotstream_lr.py 100 1 192.168.1.1 20000 local sd lr100
+  2018-03-01T17:23:33Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model sd/lr100, with 1.0 second intervals
+  2018-03-01T17:23:39.408Z: Interval 1: Everything is OK (104 sensor events in interval)
+  ...
+  2018-03-01T17:23:46.124Z: Interval 8: Attention needed (99 sensor events in interval)
+  ...
+  2018-03-01T17:24:40Z: 6000 events received in 61.1 seconds (60 intervals), or 98 sensor events/second
 ```
 
 Explanation:
@@ -227,19 +227,19 @@ Notes:
 ### Spark Standalone with HDFS storage:
 
 ```
-export HADOOP_CONF_DIR=/etc/hadoop/conf  # Or wherever your Hadoop configuration files are
+$ export HADOOP_CONF_DIR=/etc/hadoop/conf  # Or wherever your Hadoop configuration files are
 
-spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
+$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
 --executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
    
-spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
+$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
 --executor-memory=50g iottrain_lr.py HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
     
 In one shell:   
-  python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
+  $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
       
 In a 2nd shell on the same or different servers: 
-  spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
+  $ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
   --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
 ``` 
 Explanation:
@@ -249,7 +249,7 @@ Explanation:
   - `sim_sensors_lr.py` generates 1000 sensor events per second ranging over 1000 sensors, for 40 seconds (40000 events)
      Its output is piped through nc, which opens up a socket on port 20000, listening (-l) for connections, keeping it open (-k)
   - `iotstream_lr.py` connects to the socket at IP 192.168.1.1 port 20000, batches the inputs in 1 second intervals,
-     combines the inputs for that interval into 1000-long vectors of sensors values, and runs those vectors through Logistic Regression  
+     combines the inputs for that interval into 1000-long vectors of sensors values, and runs those vectors through Logistic Regression
      model `lr_model1_1000`, printing whether the input is OK or attention is needed.
      If a particular sensor is not read during the reporting interval the sensor's current value is used unchanged.
 
@@ -261,7 +261,7 @@ For S3 add the following lines to `spark/conf/spark-defaults.conf` on the master
 spark.hadoop.fs.s3a.access.key  <access key>
 spark.hadoop.fs.s3a.secret.key  <secret key>
 ```   
-Then download the following two jars and copy to `spark/jars` on all nodes:
+Then download the following two jars to local directory:
  
 ```
 wget http://central.maven.org/maven2/com/amazonaws/aws-java-sdk/1.7.4/aws-java-sdk-1.7.4.jar
@@ -269,25 +269,34 @@ wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.3/hadoop-a
 ```
 
 ```
-spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.cores=1 --executor-memory 4g iotgen_lr.py 4000 100 80 S3 davejaffedata sensor_data4k_30 2613
-2018-03-01T20:50:58Z: Creating file s3a://davejaffedata/sensor_data4k_30 with 4000 rows of 100 sensors, each row preceded by score using cutoff 2613.0, in 80 partitions
-2018-03-01T20:54:26Z: Created file s3a://davejaffedata/sensor_data4k_30 with size 3.1MB
+$ spark-submit --master spark://<host>:7077 --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+--conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 S3 davejaffedata sensor_data1M_1000
+2019-02-20T21:57:23Z: Creating file s3a://davejaffedata/sensor_data1M_1000 with 1000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
+2019-02-20T22:17:04Z: Created file s3a://davejaffedata/sensor_data1M_1000 with size 7.6GB
 
-spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.cores=2 --executor-memory 20g  iottrain_lr.py S3 davejaffedata sensor_data4k_30 lr_model1_100_30
-2018-03-01T20:56:00Z: Training logistic regression model and storing as s3a://davejaffedata/lr_model1_100_30 using data from s3a://davejaffedata/sensor_data4k_30
-2018-03-01T20:58:13Z: Trained logistic regression model and stored as s3a://davejaffedata/lr_model1_100_30
+$ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+--conf spark.executor.cores=5 --executor-memory=50g iottrain_lr.py S3 davejaffedata sensor_data1M_1000 lr_model1_1000
+2019-02-20T22:20:08Z: Training logistic regression model and storing as s3a://davejaffedata/lr_model1_1000 using data from s3a://davejaffedata/sensor_data1M_1000
+2019-02-20T22:20:46Z: Trained logistic regression model and storing as s3a://davejaffedata/lr_model1_1000
+2019-02-20T22:21:07Z: Trained logistic regression model and stored as s3a://davejaffedata/lr_model1_1000
 
-In one shell: 
-  python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
-In a 2nd shell on the same or different servers: 
-  spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.executor.cores=4 --executor-memory 40g iotstream_lr.py 100 1 192.168.1.1 20000 S3 davejaffedata lr_model1_100_30
-2018-03-01T21:07:05Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://davejaffedata/lr_model1_100_30, with 1.0 second intervals
-2018-03-01T21:07:24.927Z: Interval 1: Everything is OK (103 sensor events in interval)
+In one shell:
+  $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
+
+In a 2nd shell on the same or different servers:
+  $ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+  --conf spark.executor.cores=5 --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 S3 davejaffedata lr_model1_1000
+
+2019-02-20T22:29:52.044Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://davejaffedata/lr_model1_1000, with 1.0 second intervals
+19/02/20 22:29:52 WARN Utils: Service 'SparkUI' could not bind on port 4040. Attempting port 4041.
+19/02/20 22:29:54 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2019-02-20T22:30:15.955Z: Interval 1: Attention needed (1457 sensor events in interval)
 ...
-2018-03-01T21:07:35.161Z: Interval 12: Attention needed (99 sensor events in interval)
-...
-2018-03-01T21:08:12Z: 6000 events received in 48.3 seconds (47 intervals), or 124 sensor events/second
+2019-02-20T22:30:20.621Z: Interval 6: Everything is OK (917 sensor events in interval)
+2019-02-20T22:30:57.145Z: Interval 43: Everything is OK (853 sensor events in interval)
+2019-02-20T22:30:59.430Z: 40000 events received in 43.4 seconds (43 intervals), or 922 sensor events/second
 ```
+
 ## Compile Scala code into assembly with dependencies included:
 
 - Install Scala (2.11.8 tested) and SBT (1.1.0 tested)
@@ -326,16 +335,16 @@ Created topic "perf3".
 In directory containing iotstream_2.11-0.0.1.jar, run programs:
 
 ```
-spark-submit --master spark://bd-s01-n2.localdomain:7077 --conf spark.cores.max=40 --conf spark.executor.cores=4 --executor-memory 40g --name iotgen_lr --class com.iotstream.iotgen_lr iotstream_2.11-0.0.1.jar 1000 100000 200 S3 davejaffedata sensor_data1K_100K_40 2501427837
-2018-02-20T05:45:00.916Z: Creating file s3a://davejaffedata/sensor_data1K_100K_40 with 1000 rows of 100000 sensors, each row preceded by score using cutoff 2501427837.0, in 200 partitions
-2018-02-20T05:45:25.018Z: Created file s3a://davejaffedata/sensor_data1K_100K_40 with size 762.9MB
+spark-submit --master spark://<host>:7077 --conf spark.cores.max=40 --conf spark.executor.cores=4 --executor-memory 40g --name iotgen_lr --class com.iotstream.iotgen_lr iotstream_2.11-0.0.1.jar 1000 100000 200 S3 s3bucket sensor_data1K_100K_40 2501427837
+2018-02-20T05:45:00.916Z: Creating file s3a://s3bucket/sensor_data1K_100K_40 with 1000 rows of 100000 sensors, each row preceded by score using cutoff 2501427837.0, in 200 partitions
+2018-02-20T05:45:25.018Z: Created file s3a://s3bucket/sensor_data1K_100K_40 with size 762.9MB
 
-spark-submit --master spark://bd-s01-n2.localdomain:7077 --name iottrain_lr --class com.iotstream.iottrain_lr iotstream_2.11-0.0.1.jar s3 davejaffedata sensor_data1K_100K_40 lr100K_40****
-2018-02-20T05:47:40.459Z: Training logistic regression model and storing as s3a://davejaffedata/lr100K_40 using data from s3a://davejaffedata/sensor_data1K_100K_40
-2018-02-20T05:48:15.295Z: Trained logistic regression model and stored as s3a://davejaffedata/lr100K_40
+spark-submit --master spark://<host>:7077 --name iottrain_lr --class com.iotstream.iottrain_lr iotstream_2.11-0.0.1.jar s3 s3bucket sensor_data1K_100K_40 lr100K_40
+2018-02-20T05:47:40.459Z: Training logistic regression model and storing as s3a://s3bucket/lr100K_40 using data from s3a://s3bucket/sensor_data1K_100K_40
+2018-02-20T05:48:15.295Z: Trained logistic regression model and stored as s3a://s3bucket/lr100K_40
 
-spark-submit --name iotstream_lr_kafka --class com.iotstream.iotstream_lr_kafka iotstream_2.11-0.0.1.jar 100000 1 localhost:9092 perf3 s3 davejaffedata lr100K_40
-2018-02-20T06:04:58.022Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model s3a://davejaffedata/lr100K_40, with 1 second intervals
+spark-submit --name iotstream_lr_kafka --class com.iotstream.iotstream_lr_kafka iotstream_2.11-0.0.1.jar 100000 1 localhost:9092 perf3 s3 s3bucket lr100K_40
+2018-02-20T06:04:58.022Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model s3a://s3bucket/lr100K_40, with 1 second intervals
 No input  
 No input  <start sim_sensors (next command)>
 ...
