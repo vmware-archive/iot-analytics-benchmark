@@ -92,7 +92,7 @@ Parameter          | Use
 MODELPATH          | Location of trained model file - required
 REPORTINGINTERVAL  | Reporting interval - defaults to every 100 images sent
 
-Wait for program to output "Start send program" then, in a second shell in the same directory:
+Wait for program to output "Start send program" then, in a second shell on the same or different server, in the same directory:
 
 `python3 send_images_cifar.py [-h] [-s] [-i IMAGESPERSEC] [-t TOTALIMAGES] | nc <dest IP address>  <dest port>`
 
@@ -138,7 +138,7 @@ TOTALIMAGES    | Total number of images to send - defaults to 100
 
 Specify -s to subtract image mean from each image value - use for ResNet model
 
-Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell:
+Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell on the same or different server, in the same directory:
 
 ```
 export SPARK_HOME=/root/spark
@@ -222,7 +222,7 @@ Arguments:
   -t, --totalImages <value>   total images                     Default: 100
 ```
 
-Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell:
+Wait for "Pausing 15 seconds - start infer_cifar_stream", then in a second shell on the same or different server:
 
 ```
 spark-submit <Spark config params> --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \

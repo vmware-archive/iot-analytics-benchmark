@@ -80,7 +80,12 @@ File                         | Use
 
 ## Program usage (run any program without parameters to show):
 
-`spark-submit iotgen_lr.py n_rows n_sensors n_partitions_ HDFS_or_S3 HDFS_path_or_S3_bucket filename <cutoff>`
+```
+export SPARK_HOME=/root/spark
+export PYSPARK_PYTHON=python3  # Set this to whatever python binary you are using
+cd <path>/iot-analytics-benchmark-master/ML/python
+spark-submit iotgen_lr.py n_rows n_sensors n_partitions_ HDFS_or_S3 HDFS_path_or_S3_bucket filename <cutoff>
+```
 
 where:
 
