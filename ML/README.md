@@ -33,7 +33,7 @@ All programs are in Python or Scala.
 
 - Install python including numpy on all nodes
   - Works with Python2 and Python3
-  - See [IoT Analytics Benchmark DL/README.md](./DL/README.md) for Python3 installation instructions
+  - See [IoT Analytics Benchmark DL/README.md](../DL/README.md) for Python3 installation instructions
 
 - Install nc on driver node (`yum install nc`)
 
