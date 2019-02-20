@@ -50,7 +50,7 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
 - Add spark/bin directory to `$PATH`. For example:  
 
-  edit ~/.bashrc
+  edit `~/.bashrc`  
   add `export PATH=$PATH:/root/spark/bin`
 
 
