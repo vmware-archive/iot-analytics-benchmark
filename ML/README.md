@@ -187,6 +187,12 @@ $ spark-submit iottrain_lr.py local sd sensor_data1k_100 lr100
 In one shell:
        
   $ python sim_sensors_lr.py 100 100 6000 | nc -lk 20000
+  2019-02-21T03:52:25Z: Generating 100 sensor events per second representing 100 sensors for a total of 6000 events
+  2019-02-21T03:52:26Z: 100 events sent
+  2019-02-21T03:52:27Z: 200 events sent
+  ...
+  2019-02-21T03:56:38Z: 6000 events sent
+  2019-02-21T03:56:38Z: Sensor stream ended - keeping socket open for 1000 seconds
     
 In a 2nd shell on the same or different server:
     
@@ -229,12 +235,12 @@ Notes:
 ```
 $ export HADOOP_CONF_DIR=/etc/hadoop/conf  # Or wherever your Hadoop configuration files are
 
-$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
+$ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 \
 --executor-memory 10g iotgen_lr.py 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
 2019-02-20T21:04:05Z: Creating file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
 2019-02-20T21:04:53Z: Created file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with size 7.6GB
    
-$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
+$ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \ 
 --executor-memory=50g iottrain_lr.py HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
 2019-02-20T21:06:18Z: Training logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000 using data from hdfs://nameservice1/user/root/sd/sensor_data1M_1000
 2019-02-20T21:07:14Z: Trained logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000
@@ -244,7 +250,7 @@ In one shell:
   $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
       
 In a 2nd shell on the same or different servers: 
-  $ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
+  $ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=5 \
   --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
   2019-02-20T21:07:55.781Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model hdfs://nameservice1/user/root/sd/lr_model1_1000, with 1.0 second intervals
   2019-02-20T21:08:10.373Z: Interval 1: Everything is OK (2010 sensor events in interval)
@@ -280,12 +286,12 @@ wget http://central.maven.org/maven2/org/apache/hadoop/hadoop-aws/2.7.3/hadoop-a
 ```
 
 ```
-$ spark-submit --master spark://<host>:7077 --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+$ spark-submit --master spark://192.168.1.1:7077 --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
 --conf spark.executor.cores=1 --executor-memory 10g iotgen_lr.py 1000000 1000 500 S3 s3bucket sensor_data1M_1000
 2019-02-20T21:57:23Z: Creating file s3a://s3bucket/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
 2019-02-20T22:17:04Z: Created file s3a://s3bucket/sensor_data1M_1000 with size 7.6GB
 
-$ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+$ spark-submit --master spark://192.168.1.1:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
 --conf spark.executor.cores=5 --executor-memory=50g iottrain_lr.py S3 s3bucket sensor_data1M_1000 lr_model1_1000
 2019-02-20T22:20:08Z: Training logistic regression model and storing as s3a://s3bucket/lr_model1_1000 using data from s3a://s3bucket/sensor_data1M_1000
 2019-02-20T22:20:46Z: Trained logistic regression model and storing as s3a://s3bucket/lr_model1_1000
@@ -295,7 +301,7 @@ In one shell:
   $ python sim_sensors_lr.py 1000 1000 40000 | nc -lk 20000
 
 In a 2nd shell on the same or different servers:
-  $ spark-submit --master spark://<host>:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
+  $ spark-submit --master spark://192.168.1.1:7077  --jars aws-java-sdk-1.7.4.jar,hadoop-aws-2.7.3.jar --conf spark.cores.max=250 \
   --conf spark.executor.cores=5 --executor-memory=50g iotstream_lr.py 1000 1 192.168.1.1 20000 S3 s3bucket lr_model1_1000
 
 2019-02-20T22:29:52.044Z: Analyzing stream of input from host 192.168.1.1 on port 20000 using LR model s3a://s3bucket/lr_model1_1000, with 1.0 second intervals
@@ -334,15 +340,15 @@ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 -
 Created topic "perf3".
 ```
 
-In directory containing iotstream_2.11-0.0.1.jar, run programs:
+Run programs:
 
 ```
-$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 --executor-memory 10g \
+$ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 --executor-memory 10g \
 --class com.iotstream.iotgen_lr <path>/iotstreamml-assembly-0.0.1.jar 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
 2019-02-21T03:20:47.076Z: Creating file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
 2019-02-21T03:20:55.655Z: Created file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with size ...
 
-$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
+$ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
 --class com.iotstream.iottrain_lr <path>/iotstreamml-assembly-0.0.1.jar HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
 2019-02-20T23:45:42.560Z: Training logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000 using data from hdfs://nameservice1/user/root/sd/sensor_data10_10
 2019-02-20T23:46:01.849Z: Trained logistic regression model and stored as hdfs://nameservice1/user/root/lr_model1_1000 in xxx seconds
@@ -355,7 +361,7 @@ $ java -cp iotstreamml-assembly-0.0.1.jar com.iotstream.sim_sensors_lr_kafka 100
 2018-02-20T06:06:55.701Z: 10000000 events sent
 2018-02-20T06:06:55.705Z: Sent 10000000 events to Kafka topic perf3 in 95.248927069 seconds
 
-$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
+$ spark-submit --master spark://192.168.1.1:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
 --class com.iotstream.iotstream_lr_kafka <path>/iotstreamml-assembly-0.0.1.jar 1000 1 localhost:9092 perf3 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
 2019-02-21T00:07:22.075Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model hdfs://nameservice1/user/root/sd/lr_model1_1000, with 1 second intervals
 2018-02-20T06:05:22.608Z: Interval 1: Everything is OK (96175 sensor events in interval)
@@ -374,12 +380,6 @@ $ java -Dlog4j.configuration=file:/root/kafka/config/tools-log4j.propertiesi -cp
 
 ## MQTT version
 
-Add to spark-defaults.com:
-
-```
-spark.jars.packages      org.apache.bahir:spark-streaming-mqtt_2.11:2.2.0  (add to other packages if using S3)
-```
-
 Install and start MQTT:
 
 ```
@@ -393,12 +393,13 @@ mosquitto
 1524237101: Opening ipv6 listen socket on port 1883.
 ```
 
-In directory containing iotstream_2.11-0.0.1.jar, run programs:
+Run programs:
 
 ```
-spark-submit --name iotstream_lr_mqtt --class com.iotstream.iotstream_lr_mqtt iotstream_2.11-0.0.1.jar 1000 1 localhost 1883 t1 local sd lr1K
+$ java -cp <path>/iotstreamml-assembly-0.0.1.jar com.iotstream.sim_sensors_lr_mqtt 100 100 1000 localhost 1883 t1
 
-scala -cp iotstream_2.11-0.0.1.jar:/root/org.eclipse.paho.client.mqttv3-1.2.0.jar com.iotstream.sim_sensors_lr_mqtt 1000 1000 10000 localhost 1883 t1
+$ spark-submit --class com.iotstream.iotstream_lr_mqtt <path>/iotstreamml-assembly-0.0.1.jar 100 1 localhost 1883 t1 local sd lr100
+
 ```
 
 ## Miscellaneous Notes
