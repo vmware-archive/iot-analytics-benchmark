@@ -314,19 +314,11 @@ In a 2nd shell on the same or different servers:
   ```
   cd <path>/iot-analytics-benchmark-master/ML/scala
   <Modify build.sbt for correct Spark and Scala versions if necessary>
-  mkdir project
-  mv assembly.sbt project
   sbt assembly
   ```
 - Creates `iotstreamml-assembly-0.0.1.jar`
 
 ## Kafka/Scala version
-
-Add to spark-defaults.com:
-
-```
-spark.jars.packages      org.apache.spark:spark-streaming-kafka-0-8_2.11:2.3.0  (add to other packages if using S3)
-```
 
 Obtain latest Kafka build from <http://kafka.apache.org>
 
@@ -345,44 +337,39 @@ Created topic "perf3".
 In directory containing iotstream_2.11-0.0.1.jar, run programs:
 
 ```
-spark-submit --master spark://<host>:7077 --conf spark.cores.max=40 --conf spark.executor.cores=4 --executor-memory 40g --name iotgen_lr --class com.iotstream.iotgen_lr iotstream_2.11-0.0.1.jar 1000 100000 200 S3 s3bucket sensor_data1K_100K_40 2501427837
-2018-02-20T05:45:00.916Z: Creating file s3a://s3bucket/sensor_data1K_100K_40 with 1000 rows of 100000 sensors, each row preceded by score using cutoff 2501427837.0, in 200 partitions
-2018-02-20T05:45:25.018Z: Created file s3a://s3bucket/sensor_data1K_100K_40 with size 762.9MB
+$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=1 --executor-memory 10g \
+--class com.iotstream.iotgen_lr <path>/iotstreamml-assembly-0.0.1.jar 1000000 1000 500 HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000
+2019-02-21T03:20:47.076Z: Creating file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with 1000000 rows of 1000 sensors, each row preceded by score using cutoff 250250.0, in 500 partitions
+2019-02-21T03:20:55.655Z: Created file hdfs://nameservice1/user/root/sd/sensor_data1M_1000 with size ...
 
-spark-submit --master spark://<host>:7077 --name iottrain_lr --class com.iotstream.iottrain_lr iotstream_2.11-0.0.1.jar s3 s3bucket sensor_data1K_100K_40 lr100K_40
-2018-02-20T05:47:40.459Z: Training logistic regression model and storing as s3a://s3bucket/lr100K_40 using data from s3a://s3bucket/sensor_data1K_100K_40
-2018-02-20T05:48:15.295Z: Trained logistic regression model and stored as s3a://s3bucket/lr100K_40
+$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
+--class com.iotstream.iottrain_lr <path>/iotstreamml-assembly-0.0.1.jar HDFS hdfs://nameservice1/user/root/sd sensor_data1M_1000 lr_model1_1000
+2019-02-20T23:45:42.560Z: Training logistic regression model and storing as hdfs://nameservice1/user/root/sd/lr_model1_1000 using data from hdfs://nameservice1/user/root/sd/sensor_data10_10
+2019-02-20T23:46:01.849Z: Trained logistic regression model and stored as hdfs://nameservice1/user/root/lr_model1_1000 in xxx seconds
 
-spark-submit --name iotstream_lr_kafka --class com.iotstream.iotstream_lr_kafka iotstream_2.11-0.0.1.jar 100000 1 localhost:9092 perf3 s3 s3bucket lr100K_40
-2018-02-20T06:04:58.022Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model s3a://s3bucket/lr100K_40, with 1 second intervals
-No input  
-No input  <start sim_sensors (next command)>
+$ java -cp iotstreamml-assembly-0.0.1.jar com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 localhost:9092 perf3
+2018-02-20T06:05:20.177Z: Sending 200000 sensor events per second representing 100000 sensors for a total of 10000000 events to Kafka topic perf3 using Kafka server(s) localhost:9092
+2018-02-20T06:05:22.797Z: 200000 events sent
+2018-02-20T06:05:24.685Z: 400000 events sent
 ...
-2018-02-20T06:05:21.320Z: Interval 0: Everything is OK (20270 sensor events in interval)
+2018-02-20T06:06:55.701Z: 10000000 events sent
+2018-02-20T06:06:55.705Z: Sent 10000000 events to Kafka topic perf3 in 95.248927069 seconds
+
+$ spark-submit --master spark://<host>:7077 --conf spark.cores.max=250 --conf spark.executor.cores=10 --executor-memory 50g \
+--class com.iotstream.iotstream_lr_kafka <path>/iotstreamml-assembly-0.0.1.jar 1000 1 localhost:9092 perf3 HDFS hdfs://nameservice1/user/root/sd lr_model1_1000
+2019-02-21T00:07:22.075Z: Analyzing stream of input from kafka topic perf3 with kafka server(s) localhost:9092, using LR model hdfs://nameservice1/user/root/sd/lr_model1_1000, with 1 second intervals
 2018-02-20T06:05:22.608Z: Interval 1: Everything is OK (96175 sensor events in interval)
 2018-02-20T06:05:23.559Z: Interval 2: Everything is OK (104938 sensor events in interval)
 ...
 2018-02-20T06:05:42.575Z: Interval 21: Attention needed (105654 sensor events in interval)
 ...
 2018-02-20T06:06:58.380Z: 10000000 events received in 96.4 seconds (96 intervals), or 103764 sensor events/second
-
-java -cp iotstream_2.11-0.0.1.jar:/root/kafka/libs/* com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 192.168.1.1:9092 perf3
-2018-02-20T06:05:20.177Z: Sending 200000 sensor events per second representing 100000 sensors for a total of 10000000 events to Kafka topic perf3 using Kafka server(s) 192.168.1.1:9092
-
-2018-02-20T06:05:22.797Z: 200000 events sent
-2018-02-20T06:05:24.685Z: 400000 events sent
-...
-2018-02-20T06:06:55.701Z: 10000000 events sent
-2018-02-20T06:06:55.705Z: Sent 10000000 events to Kafka topic perf3 in 95.248927069 seconds
 ```
-
-To run offline, comment out spark.jars.packages line in spark-defaults.com and use iotstream-assembly-0.0.1.jar (available from author) in place 
-of iotstream_2.11-0.0.1.jar above with local or HDFS storage
 
 Note: add Java definition to last command to use Kafka configuration files, eg
 
 ```
-java -cp iotstream-assembly-0.0.1.jar -Dlog4j.configuration=file:/root/kafka/config/tools-log4j.properties com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 perf3
+$ java -Dlog4j.configuration=file:/root/kafka/config/tools-log4j.propertiesi -cp iotstreamml-assembly-0.0.1.jar com.iotstream.sim_sensors_lr_kafka 100000 200000 10000000 localhost:9092 perf3
 ```
 
 ## MQTT version

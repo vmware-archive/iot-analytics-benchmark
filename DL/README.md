@@ -206,8 +206,6 @@ Compile Scala code into assembly with dependencies included:
   ```
   cd <path>/iot-analytics-benchmark-master/DL/scala
   <Modify build.sbt for correct Spark and Scala versions if necessary>
-  mkdir project
-  mv assembly.sbt project
   sbt assembly
   ```
 - Creates `iotstreamdl-assembly-0.0.1.jar`
