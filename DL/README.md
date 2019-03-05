@@ -31,7 +31,7 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
   pip3 install numpy keras tensorflow
   ```
 
-- Install nc on driver node (`yum install nc`)
+- Install nc on all nodes (`yum install nc`)
 
 - For the Spark and BigDL programs:
 
