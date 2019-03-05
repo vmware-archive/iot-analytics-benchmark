@@ -35,7 +35,7 @@ All programs are in Python or Scala.
   - Works with Python2 and Python3
   - See [IoT Analytics Benchmark DL/README.md](../DL/README.md) for Python3 installation instructions
 
-- Install nc on driver node (`yum install nc`)
+- Install nc on all nodes (`yum install nc`)
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
     `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
