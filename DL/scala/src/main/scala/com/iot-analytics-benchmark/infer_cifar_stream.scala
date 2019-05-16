@@ -9,13 +9,13 @@ In a second window:
   $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
     <path>/iotstreamdl-assembly-0.0.1.jar <arguments>
   Arguments:
-  -r <value> | --reportingInterval <value> reporting interval (sec)   Default: 1
-  -i <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1 
-  -p <value> | --sourcePort <value>        source port                Default: 10000
-  -m <value> | --model <value>             model                      Required
-  -b <value> | --batchSize <value>         batch size                 Default: 2000
-  -r <value> | --pred                      run prediction             Default: false
-  -e <value> | --eval                      run evaluation             Default: false
+  -r, --reportingInterval <value> reporting interval (sec)   Default: 1
+  -i, --sourceIPAddress <value>   source IP address          Default: 192.168.1.1 
+  -p, --sourcePort <value>        source port                Default: 10000
+  -m, --model <value>             model                      Required
+  -b, --batchSize <value>         batch size                 Default: 2000
+  -r, --pred                      run prediction             Default: false
+  -e, --eval                      run evaluation             Default: false
 
 Uses Intel's BigDL library (https://github.com/intel-analytics/BigDL) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -166,8 +166,8 @@ object infer_cifar_stream {
       val elapsed_time = (finish_time - start_time)/1000000000.0  - empty_intervals.value*param.reportingInterval - 2.0
       print("\n%s: %d images received in %.1f seconds (%d intervals), or %.0f images/second. "
         .format(Instant.now.toString, images.value, elapsed_time, interval.value, images.value.toFloat/elapsed_time))
-      if (param.runPred) print("%d of %d or %.1f%% predicted correctly".format(tot_correct_preds.value, images.value, 100.0*tot_correct_preds.value/images.value))
-      if (param.runEval) print("%d of %d or %.1f%% evaluated correctly".format(tot_correct_eval.value, images.value, 100.0*tot_correct_eval.value/images.value))
+      if (param.runPred) print("%d of %d or %.1f%% predicted correctly. ".format(tot_correct_preds.value, images.value, 100.0*tot_correct_preds.value/images.value))
+      if (param.runEval) print("%d of %d or %.1f%% evaluated correctly. ".format(tot_correct_eval.value, images.value, 100.0*tot_correct_eval.value/images.value))
       println("")
     }
   }

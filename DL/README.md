@@ -37,21 +37,33 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
 
 - Install Spark 
   - Spark single node installation: obtain latest version from <http://spark.apache.org/downloads.html> and unzip
-  - Spark release 2.4.0, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
+  - Spark release 2.4.3, using package "Prebuilt for Apache Hadoop 2.7 and later", tested here
 
-- Install BigDL (Version 0.7.0 for Spark 2.3.1 tested here)
-  - Download BigDL from https://repo1.maven.org/maven2/com/intel/analytics/bigdl/dist-spark-2.3.1-scala-2.11.8-all/0.7.0/dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip
-  - Then, `unzip dist-spark-2.3.1-scala-2.11.8-all-0.7.0-dist.zip`
-  - You will use `lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar` in commands below
-  - Finally, `pip3 install BigDL==0.7.0`
+- Install BigDL (Version 0.8.0 for Spark 2.4.1 tested here)
+
+  Example on Centos 7:
+  ```
+  wget https://repo1.maven.org/maven2/com/intel/analytics/bigdl/dist-spark-2.4.0-scala-2.11.8-all/0.8.0/dist-spark-2.4.0-scala-2.11.8-all-0.8.0-dist.zip
+  mkdir BigDL; mv dist-spark-2.4.0-scala-2.11.8-all-0.8.0-dist.zip BigDL; cd BigDL
+  unzip dist-spark-2.4.0-scala-2.11.8-all-0.8.0-dist.zip
+  pip3 install BigDL==0.8.0
+  ```
+
+  - You will use `lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar` in commands below
 
 - For purposes of this documentation, a symbolic link to the Spark code on the driver system is assumed. For example:
-  `ln -s /root/spark-2.4.0-bin-hadoop2.7 /root/spark`
+  `ln -s /root/spark-2.4.3-bin-hadoop2.7 /root/spark`
 
 - Add spark/bin directory to `$PATH`. For example:  
 
-  edit `~/.bashrc`  
-  add `export PATH=$PATH:/root/spark/bin`
+  edit `~/.bash_profile`  
+  add following lines: 
+  ```
+  export PATH=$PATH:/root/spark/bin`
+  export SPARK_HOME=/root/spark
+  export PYSPARK_PYTHON=python3
+  ```
+  `source .bash_profile`
 
 
 - Set log level from INFO to WARN or ERROR or OFF (suggested for cleaner output, especially of Spark Streaming output, which can show errors upon stream end):
@@ -77,7 +89,7 @@ File                                  | Use
 `BDL_KERAS_CIFAR_CNN.bin.8`           | Trained CNN model weights file for BigDL program - 80% accurate
 `infer_cifar_stream.scala`            | Spark Streaming BigDL scala program to classify CIFAR10 images using ResNet model
 `send_images_cifar_stream.scala`      | Send images to infer_cifar_stream.scala
-`bigdl_resnet_model_893`              | Trained ResNet model for Scala BigDL program - 89.3% accurate
+`bigdl_resnet_model_887`              | Trained ResNet model for Scala BigDL program - 88.7% accurate
 `build.sbt`                           | SBT build file
 `assembly.sbt`                        | SBT assembly file
 `README.md`                           | This file
@@ -210,16 +222,26 @@ Compile Scala code into assembly with dependencies included:
   ```
 - Creates `iotstreamdl-assembly-0.0.1.jar`
 
+NOTE:
+
+model.predict does not return elements (predicted labels) in input order and therefore doesn't reflect actual accuracy when 
+compared to correct labels. model.evaluate is accurate. 
+Thus there are option to run prediction and/or evaluation. Use prediction for performance and evaluatiom for accuracy.
+
 To run, in one shell:
 
+  - Download CIFAR10 dataset:
 ```
+wget https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz
+tar xzvf cifar-10-binary.tar.gz  # Creates directory cifar-10-batches-bin
+
 java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
   <arguments> | nc -lk <port>
 ```
 
 Arguments:
 ```
-  -f, --folder <value>        the location of Cifar10 dataset  Default: datasets/cifar-10-batches-bin
+  -f, --folder <value>        the location of Cifar10 dataset  Default: cifar-10-batches-bin
   -i, --imagesPerSec <value>  images per second                Default: 10
   -t, --totalImages <value>   total images                     Default: 100
 ```
@@ -238,6 +260,8 @@ Arguments:
   -p, --sourcePort <value>        source port                Default: 10000
   -m, --model <value>             model                      Required
   -b, --batchSize <value>         batch size                 Default: 2000
+  -r, --pred                      run prediction             Default: false
+  -e, --eval                      run evaluation             Default: false
 ```
 
 Example
@@ -255,20 +279,19 @@ Pausing 15 seconds - start image_cifar_stream
 
 $ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
 --executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl-assembly-0.0.1.jar \
---model bigdl_resnet_model_893 --reportingInterval 25
+--model bigdl_resnet_model_893 --reportingInterval 25 --pred
 2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
-2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146 correct
-2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 correct
-2019-02-15T23:37:17.207Z: 224655 images received in interval - 25921 correct
-2019-02-15T23:37:42.101Z: 225453 images received in interval - 23766 correct
-2019-02-15T23:38:07.050Z: 225521 images received in interval - 23067 correct
-2019-02-15T23:38:24.866Z: 75748 images received in interval - 8150 correct
+2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146  or 12.2% predicted correctly
+2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 or 10.3% predicted correctly
+2019-02-15T23:37:17.207Z: 224655 images received in interval - 25921 or 11.5% predicted correctly
+2019-02-15T23:37:42.101Z: 225453 images received in interval - 23766 or 10.5% predicted correctly
+2019-02-15T23:38:07.050Z: 225521 images received in interval - 23067 or 10.2% predicted correctly
+2019-02-15T23:38:24.866Z: 75748 images received in interval - 8150 or 10.8% predicted correctly
 2019-02-15T23:38:45.003Z: No input
 2019-02-15T23:38:45.003Z: Stopping stream
 
-2019-02-15T23:38:47.424Z: 1000000 images received in 128.6 seconds (6 intervals), or 7777 images/second. 106976 of 1000000 correctly inferred or 10.7%
+2019-02-15T23:38:47.424Z: 1000000 images received in 128.6 seconds (6 intervals), or 7777 images/second. 106976 of 1000000 or 10.7% predicted correctly.
 ```
-**NOTE: BigDL module.predictClass appears to lose accuracy under load with Spark Streaming**
 
 ## Where do trained models come from?
 
@@ -293,7 +316,7 @@ Modified for CIFAR10 using convnet from https://github.com/keras-team/keras/blob
 Ran to an accuracy target of 80%  
 Saved trained model using trained_model.saveModel 
 
-### bigdl_resnet_model_893
+### bigdl_resnet_model_883
 
 Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala  
 Used model saved by checkpoint after 100 epochs.

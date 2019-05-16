@@ -1,5 +1,5 @@
 /*
-send_images_cifar.scala: sends CIFAR10 images encoded as a string to a Spark Streaming inference program - Scala version
+send_images_cifar_stream.scala: sends CIFAR10 images encoded as a string to a Spark Streaming inference program - Scala version
 
 Usage:
   $ scala -J-Xmx128g -cp <path>/scopt_2.11-3.7.1.jar:scala/target/scala-2.11/infer_stream_cifar_2.11-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar \
@@ -9,7 +9,7 @@ OR
     com.intel.analytics.bigdl.models.resnet.send_images_cifar <arguments> | nc -lk <port>
 
 Arguments:
-  -f, --folder <value>        the location of Cifar10 dataset  Default: datasets/cifar-10-batches-bin
+  -f, --folder <value>        the location of Cifar10 dataset  Default: cifar-10-batches-bin
   -i, --imagesPerSec <value>  images per second                Default: 10
   -t, --totalImages <value>   total images                     Default: 100
 
@@ -30,7 +30,7 @@ import java.time.Instant
 import java.util.Random
 import scopt.OptionParser
 
-object send_images_cifar {
+object send_images_cifar_stream {
 
   // From https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/Utils.scala, with HDFS removed
   case class ByteRecord(data: Array[Byte], label: Float)
@@ -92,19 +92,19 @@ object send_images_cifar {
   def main(args: Array[String]) {
 
     case class Params(
-      folder: String = "datasets/cifar-10-batches-bin",
+      folder: String = "cifar-10-batches-bin",
       imagesPerSec: Int  = 10,
       totalImages: Int = 100
     )
 
     val parser = new OptionParser[Params]("send_images_cifar") {
       opt[String]('f', "folder")
-        .text("the location of Cifar10 dataset")
+        .text("the location of Cifar10 dataset - default: cifar-10-batches-bin")
         .action((x, c) => c.copy(folder = x))
-      opt[Int]('i', "imagesPerSec")
+      opt[Int]('i', "imagesPerSec - default: 10")
         .text("images per second")
         .action((x, c) => c.copy(imagesPerSec = x))
-      opt[Int]('t', "totalImages")
+      opt[Int]('t', "totalImages - default: 100")
         .text("total images")
         .action((x, c) => c.copy(totalImages = x))
      }
