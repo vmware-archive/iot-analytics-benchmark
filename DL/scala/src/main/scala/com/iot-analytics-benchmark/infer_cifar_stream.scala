@@ -7,13 +7,15 @@ In one window, run send_images_cifar_stream.scala (see that program for details)
 
 In a second window:
   $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
-    <path>/iotstreamdl_2.11-0.0.1.jar <arguments>
+    <path>/iotstreamdl-assembly-0.0.1.jar <arguments>
   Arguments:
   -r <value> | --reportingInterval <value> reporting interval (sec)   Default: 1
   -i <value> | --sourceIPAddress <value>   source IP address          Default: 192.168.1.1 
   -p <value> | --sourcePort <value>        source port                Default: 10000
   -m <value> | --model <value>             model                      Required
   -b <value> | --batchSize <value>         batch size                 Default: 2000
+  -r <value> | --pred                      run prediction             Default: false
+  -e <value> | --eval                      run evaluation             Default: false
 
 Uses Intel's BigDL library (https://github.com/intel-analytics/BigDL) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -48,7 +50,9 @@ object infer_cifar_stream {
       sourceIPAddress: String = "192.168.1.1",
       sourcePort: Int = 10000,
       model: String = "",
-      batchSize: Int = 2000
+      batchSize: Int = 2000,
+      runPred: Boolean = false,
+      runEval: Boolean = false
     )
 
     val parser = new OptionParser[Params]("infer_cifar_stream") {
@@ -68,6 +72,12 @@ object infer_cifar_stream {
      opt[Int]('b', "batchSize")
         .text("batch size")
         .action((x, c) => c.copy(batchSize = x))
+     opt[Unit]('r', "pred")
+        .text("run prediction")
+        .action((_, c) => c.copy(runPred = true))
+     opt[Unit]('e', "eval")
+        .text("run evaluation")
+        .action((_, c) => c.copy(runEval = true))
      }
 
     parser.parse(args, Params()).foreach { param =>
@@ -81,7 +91,8 @@ object infer_cifar_stream {
       val interval = sc.accumulator(0)
       val empty_intervals = sc.accumulator(0)
       val images  = sc.accumulator(0)
-      val tot_correct  = sc.accumulator(0)
+      val tot_correct_preds  = sc.accumulator(0)
+      val tot_correct_eval  = sc.accumulator(0)
 
       Engine.init
       val partitionNum = Engine.nodeNumber() * Engine.coreNumber()
@@ -122,15 +133,24 @@ object infer_cifar_stream {
           val evaluationSet = transformer(rddData)
           val labels = evaluationSet.map(_.label).map(l => l.value.toInt).collect
           val model = Module.load[Float](param.model)
-          // Note: model.predictClass has known accuracy issue under Spark Streaming
-          val predictions = model.predictClass(evaluationSet, param.batchSize).collect
-          var correct_preds = 0
-          for (i <- 0 to input_length-1) {
-            if (predictions(i) == labels(i)) correct_preds +=1
+          // Note: model.predictClass currently does not return elements of RDD in input order under Spark Streaming - thus not accurate but use for performance
+          if (param.runPred) {
+            val predictions = model.predictClass(evaluationSet, param.batchSize).collect
+            var correct_preds = 0
+            for (i <- 0 to input_length-1) { if (predictions(i) == labels(i)) correct_preds +=1 }
+            tot_correct_preds.add(correct_preds)
+            println("%s: %d images received in interval - %d or %.1f%% predicted correctly".format(Instant.now.toString, input_length, correct_preds, 100.0*correct_preds/input_length))
           }
-          tot_correct.add(correct_preds)
-
-          println("%s: %d images received in interval - %d correct".format(Instant.now.toString, input_length, correct_preds))
+          // Use model.evaluate for accuracy
+          if (param.runEval) {
+            val result = model.evaluate(evaluationSet, Array(new Top1Accuracy[Float]), Some(param.batchSize))
+            val frac_tot = result(0)._1.result
+            val tot_eval = frac_tot._2
+            val frac_correct_eval = frac_tot._1
+            val correct_eval = (frac_correct_eval * tot_eval).toInt
+            tot_correct_eval.add(correct_eval)
+            println("%s: %d images received in interval - %d or %.1f%% evaluated correctly".format(Instant.now.toString, tot_eval, correct_eval, 100.0*correct_eval/tot_eval))
+          }
         }
       }
 
@@ -146,7 +166,9 @@ object infer_cifar_stream {
       val elapsed_time = (finish_time - start_time)/1000000000.0  - empty_intervals.value*param.reportingInterval - 2.0
       print("\n%s: %d images received in %.1f seconds (%d intervals), or %.0f images/second. "
         .format(Instant.now.toString, images.value, elapsed_time, interval.value, images.value.toFloat/elapsed_time))
-      println("%d of %d correctly inferred or %.1f%%".format(tot_correct.value, images.value, 100.0*tot_correct.value/images.value))
+      if (param.runPred) print("%d of %d or %.1f%% predicted correctly".format(tot_correct_preds.value, images.value, 100.0*tot_correct_preds.value/images.value))
+      if (param.runEval) print("%d of %d or %.1f%% evaluated correctly".format(tot_correct_eval.value, images.value, 100.0*tot_correct_eval.value/images.value))
+      println("")
     }
   }
 }
