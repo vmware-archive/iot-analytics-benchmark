@@ -157,9 +157,7 @@ Specify -s to subtract image mean from each image value - use for ResNet model
 Wait for "Pausing 15 seconds - start infer_cifar_stream.py", then in a second shell on the same or different server, in the same directory:
 
 ```
-export SPARK_HOME=/root/spark
-export PYSPARK_PYTHON=python3
-spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \  
+spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_stream.py \  
   [-h] -md MODELDEFSPATH -mw MODELWEIGHTSPATH [-r REPORTINGINTERVAL] [-i SOURCEIPADDRESS] [-p SOURCEPORT]
 ```
 
@@ -185,7 +183,7 @@ Using TensorFlow backend.
 2019-01-31T15:56:14Z: Image stream ended - keeping socket open for 120 seconds
 
 $ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
---executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.3-0.7.0-jar-with-dependencies.jar infer_cifar_stream.py \
+--executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_stream.py \
 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 -r 25
 Prepending /usr/lib/python3.6/site-packages/bigdl/share/conf/spark-bigdl.conf to sys.path
 Using TensorFlow backend.
@@ -225,8 +223,9 @@ Compile Scala code into assembly with dependencies included:
 NOTE:
 
 model.predict does not return elements (predicted labels) in input order and therefore doesn't reflect actual accuracy when 
-compared to correct labels. model.evaluate is accurate. 
-Thus there are option to run prediction and/or evaluation. Use prediction for performance and evaluatiom for accuracy.
+compared to correct labels.  
+model.evaluate is accurate. Thus there are option to run prediction and/or evaluation. 
+Use prediction for performance and evaluation for accuracy.
 
 To run, in one shell:
 
@@ -234,7 +233,9 @@ To run, in one shell:
 ```
 wget https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz
 tar xzvf cifar-10-binary.tar.gz  # Creates directory cifar-10-batches-bin
-
+```
+  - Run program
+```
 java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
   <arguments> | nc -lk <port>
 ```
@@ -316,7 +317,7 @@ Modified for CIFAR10 using convnet from https://github.com/keras-team/keras/blob
 Ran to an accuracy target of 80%  
 Saved trained model using trained_model.saveModel 
 
-### bigdl_resnet_model_883
+### bigdl_resnet_model_887
 
 Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala  
 Used model saved by checkpoint after 100 epochs.
