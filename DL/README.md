@@ -229,12 +229,12 @@ Use prediction for performance and evaluation for accuracy.
 
 To run, in one shell:
 
-  - Download CIFAR10 dataset:
+Download CIFAR10 dataset:
 ```
 wget https://www.cs.toronto.edu/~kriz/cifar-10-binary.tar.gz
 tar xzvf cifar-10-binary.tar.gz  # Creates directory cifar-10-batches-bin
 ```
-  - Run program
+Run program:
 ```
 java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
   <arguments> | nc -lk <port>
