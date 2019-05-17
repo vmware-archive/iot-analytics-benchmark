@@ -222,7 +222,7 @@ Compile Scala code into assembly with dependencies included:
 
 NOTE:
 
-model.predict does not return elements (predicted labels) in input order and therefore doesn't reflect actual accuracy when 
+model.predictClass does not return elements (predicted labels) in input order and therefore doesn't reflect actual accuracy when 
 compared to correct labels.  
 model.evaluate is accurate. Thus there are option to run prediction and/or evaluation. 
 Use prediction for performance and evaluation for accuracy.
