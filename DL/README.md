@@ -261,37 +261,35 @@ Arguments:
   -p, --sourcePort <value>        source port                Default: 10000
   -m, --model <value>             model                      Required
   -b, --batchSize <value>         batch size                 Default: 2000
-  -r, --pred                      run prediction             Default: false
-  -e, --eval                      run evaluation             Default: false
 ```
 
 Example
 
 ```
-$ java -Xmx128g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
-  -i 12000 -t 1000000 | nc -lk 10000
-Will send 12000 images per second for a total of 1000000 images
-Pausing 15 seconds - start image_cifar_stream
-2019-02-15T23:33:01.873Z: Sending images
-2019-02-15T23:36:13.264Z: 12000 images sent
+$ java -Xmx100g -cp <path>/iotstreamdl-assembly-0.0.1.jar com.intel.analytics.bigdl.models.resnet.send_images_cifar_stream \
+  --imagesPerSec 9000 --totalImages 360000 | nc -lk 11000
+Will send 9000 images per second for a total of 360000 images
+Pausing 15 seconds - start image_stream_cifar
+2019-05-21T18:33:07.853Z: Sending images
+2019-05-21T18:33:15.380Z: 9000 images sent
 ...
-2019-02-15T23:38:03.182Z: Sent 1000000 images in 301.3 seconds
+2019-05-21T18:34:08.920Z: 360000 images sent
+2019-05-21T18:34:08.920Z: Sent 360000 images in 61.1 seconds
 
+$ spark-submit --master spark://<host>:7077 --driver-memory 100G --conf spark.cores.max=96 --conf spark.executor.cores=8 \
+  --executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream \
+  <path>/iotstreamdl-assembly-0.0.1.jar --model bigdl_resnet_model_887 --reportingInterval 10 --sourcePort 11000 --batchSize 2400
+2019-05-21T18:33:06.567Z: Classifying images from 192.168.1.1:11000 with Resnet model bigdl_resnet_model_887, with 10 second intervals
+2019-05-21T18:33:28.124Z: 40100 images received in interval - 35574 or 88.7% predicted correctly
+2019-05-21T18:33:38.865Z: 64115 images received in interval - 56876 or 88.7% predicted correctly
+2019-05-21T18:33:49.021Z: 65753 images received in interval - 58311 or 88.7% predicted correctly
+2019-05-21T18:33:58.839Z: 64831 images received in interval - 57519 or 88.7% predicted correctly
+2019-05-21T18:34:08.399Z: 65662 images received in interval - 58234 or 88.7% predicted correctly
+2019-05-21T18:34:17.806Z: 59539 images received in interval - 52806 or 88.7% predicted correctly
+2019-05-21T18:34:20.003Z: No input
+2019-05-21T18:34:20.003Z: Stopping stream
 
-$ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
---executor-memory 104g --class com.intel.analytics.bigdl.models.resnet.infer_cifar_stream iotstreamdl-assembly-0.0.1.jar \
---model bigdl_resnet_model_893 --reportingInterval 25 --pred
-2019-02-15T23:36:03.979Z: Classifying images from 192.168.1.1:10000 with Resnet model bigdl_resnet_model_893, with 25 second intervals
-2019-02-15T23:36:19.948Z: 25744 images received in interval - 3146  or 12.2% predicted correctly
-2019-02-15T23:36:52.503Z: 222879 images received in interval - 22926 or 10.3% predicted correctly
-2019-02-15T23:37:17.207Z: 224655 images received in interval - 25921 or 11.5% predicted correctly
-2019-02-15T23:37:42.101Z: 225453 images received in interval - 23766 or 10.5% predicted correctly
-2019-02-15T23:38:07.050Z: 225521 images received in interval - 23067 or 10.2% predicted correctly
-2019-02-15T23:38:24.866Z: 75748 images received in interval - 8150 or 10.8% predicted correctly
-2019-02-15T23:38:45.003Z: No input
-2019-02-15T23:38:45.003Z: Stopping stream
-
-2019-02-15T23:38:47.424Z: 1000000 images received in 128.6 seconds (6 intervals), or 7777 images/second. 106976 of 1000000 or 10.7% predicted correctly.
+2019-05-21T18:34:22.431Z: 360000 images received in 56.4 seconds (6 intervals), or 6382 images/second. 319320 of 360000 or 88.7% predicted correctly
 ```
 
 ## Where do trained models come from?
