@@ -82,3 +82,5 @@ elif (size >= KiB):
 else:
   size_str = "%d" % size
 print("%sZ: Created file %s with size %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str))
+
+sc.stop()

@@ -65,3 +65,5 @@ for labeled_image_str in sys.stdin:
 finish_time = time()
 print('Inferenced %d images in %.1f seconds or %.1f images/second, ' % (n_images, finish_time-start_time, 1.0*n_images/(finish_time-start_time)), end='')
 print('with %d or %.1f%% correctly classified' % (n_correct, (100.0*n_correct)/n_images))
+
+sc.stop()

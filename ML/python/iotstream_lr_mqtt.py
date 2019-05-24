@@ -97,3 +97,5 @@ ssc.awaitTermination()
 finish_time = time()
 elapsed_time = finish_time - start_time - empty_intervals.value*reporting_interval - 1.5 # Subtract off time waiting for events and 1.5 sec for termination
 print('\n%s.%03dZ: %d events received in %.1f seconds (%d intervals), or %.0f sensor events/second\n' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, events.value-1,  elapsed_time, interval.value, float(events.value-1)/elapsed_time))
+
+sc.stop()

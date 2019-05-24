@@ -112,3 +112,5 @@ start_time = time()
 ssc.awaitTermination()
 elapsed_time = time() - start_time - empty_intervals.value*reporting_interval - 2.4 # Subtract empty intervals and time to shut down stream
 print('\n%s.%03dZ: %d images received in %.1f seconds (%d intervals), or %.0f images/second  Correct predictions: %d  Pct correct: %.1f' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, images.value,  elapsed_time, interval.value, float(images.value)/elapsed_time, correct_preds_tot.value, float(100*correct_preds_tot.value)/images.value))
+
+sc.stop()

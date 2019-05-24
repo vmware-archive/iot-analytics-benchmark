@@ -61,3 +61,5 @@ elif (size >= KiB):
 else:
   size_str = "%d" % size
 print("Created file {} with size {}".format(ofilename, size_str))
+
+sc.stop()

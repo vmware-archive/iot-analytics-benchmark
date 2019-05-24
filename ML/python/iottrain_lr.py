@@ -50,3 +50,5 @@ print("%sZ: Trained logistic regression model and storing as %s" % (strftime("%Y
 model.save(sc, ofilename)
 
 print("%sZ: Trained logistic regression model and stored as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename))
+
+sc.stop()
