@@ -35,7 +35,6 @@ from time import time, gmtime, strftime, sleep
 
 from bigdl.nn.layer import *
 from bigdl.util.common import *
-from keras.datasets import cifar10
 
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
@@ -81,10 +80,9 @@ def run_model(rdd):
     print('%s.%03dZ: Interval %d:  images received=%d   images correctly predicted=%d' %  
       (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, interval.value, input_length, correct_preds))
 
-# Read CIFAR10 images, calculate mean and std dev of training set
-(train_images, train_labels), (test_images, test_labels) = cifar10.load_data()
-training_mean = np.mean(train_images)
-training_std = np.std(train_images)
+# From CIFAR10 Dataset
+training_mean = 120.70756512369792
+training_std = 64.1500758911213
 
 # Initialize SparkContext, BigDL engine and various accumulators
 sc = SparkContext(appName="infer_cifar_stream", conf=create_spark_conf())
