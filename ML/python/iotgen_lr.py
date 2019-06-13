@@ -17,7 +17,7 @@ from __future__ import print_function
 
 import sys, random, math
 import numpy as np
-from time import gmtime, strftime
+from time import time, gmtime, strftime
 from pyspark import SparkConf, SparkContext
 
 if not (len(sys.argv) == 7 or len(sys.argv) == 8):
@@ -64,10 +64,12 @@ def toCSVLine(data):
 
 sc = SparkContext(appName="iotgen_lr")
 
+start_time = time()
 # Create an RDD with n_partitions elements, send each to create_sensor_data_partition, combine results, convert to CSV output and save to ofilename
 r = sc.parallelize(range(n_partitions), n_partitions)
 lines = r.map(create_sensor_data_partition).flatMap(lambda a: a.tolist()).map(toCSVLine)
 lines.saveAsTextFile(ofilename)
+elapsed_time = time() - start_time
 
 size = float((n_sensors+1)*8*n_rows)
 KiB,MiB,GiB,TiB = pow(2,10),pow(2,20),pow(2,30),pow(2,40)
@@ -81,6 +83,6 @@ elif (size >= KiB):
   size_str = "%.1fKB" % (size/KiB) 
 else:
   size_str = "%d" % size
-print("%sZ: Created file %s with size %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str))
+print("%sZ: Created file %s with size %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, size_str, elapsed_time))
 
 sc.stop()

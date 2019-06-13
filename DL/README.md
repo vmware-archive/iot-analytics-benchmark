@@ -220,12 +220,6 @@ Compile Scala code into assembly with dependencies included:
   ```
 - Creates `iotstreamdl-assembly-0.0.1.jar`
 
-NOTE:
-
-model.predictClass does not return elements (predicted labels) in input order and therefore doesn't reflect actual accuracy when 
-compared to correct labels.  
-model.evaluate is accurate. Thus there are option to run prediction and/or evaluation. 
-Use prediction for performance and evaluation for accuracy.
 
 To run, in one shell:
 
@@ -317,5 +311,5 @@ Saved trained model using trained_model.saveModel
 
 ### bigdl_resnet_model_887
 
-Ran https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala  
+Ran BigDL ResNet50 model (https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/scala/com/intel/analytics/bigdl/models/resnet/TrainCIFAR10.scala)  
 Used model saved by checkpoint after 100 epochs.

@@ -14,7 +14,7 @@ This product may include a number of subcomponents with separate copyright notic
 from __future__ import print_function
 
 import os, sys
-from time import gmtime, strftime
+from time import time, gmtime, strftime
 from pyspark import SparkConf, SparkContext
 from pyspark.mllib.classification import LogisticRegressionWithLBFGS, LogisticRegressionModel
 from pyspark.mllib.regression import LabeledPoint
@@ -39,6 +39,7 @@ def parsePoint(line):
 
 sc = SparkContext(appName="iottrain_lr")
 
+start_time = time()
 data = sc.textFile(ifilename)
 parsedData = data.map(parsePoint)
 
@@ -48,7 +49,7 @@ model = LogisticRegressionWithLBFGS.train(parsedData)
 # Save model
 print("%sZ: Trained logistic regression model and storing as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename))
 model.save(sc, ofilename)
-
-print("%sZ: Trained logistic regression model and stored as %s" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename))
+elapsed_time = time() - start_time
+print("%sZ: Trained logistic regression model and stored as %s in %.1f seconds" % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), ofilename, elapsed_time))
 
 sc.stop()
