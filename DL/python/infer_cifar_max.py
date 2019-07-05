@@ -7,6 +7,8 @@ Usage:
 
   Arguments:
   -h          | --help                Print help message
+  -md <value> | --modelDefsPath <value>     model definitions path     Required
+  -mw <value> | --modelWeightsPath <value>  model weights path         Required
   -d  <value> | --duration <value>    Duration (sec)   Default: 10
 
 Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
@@ -34,8 +36,12 @@ from keras.datasets import cifar10
 from pyspark import SparkContext
 
 parser = argparse.ArgumentParser(description='Infer CIFAR10 images using pre-trained BigDL Keras CNN model')
+parser.add_argument("-md", "--modelDefsPath", type=str, dest="modelDefsPath", required=True)
+parser.add_argument("-mw", "--modelWeightsPath", type=str, dest="modelWeightsPath", required=True)
 parser.add_argument("-d", "--duration", type=int, dest="duration", default=10)
 args = parser.parse_args()
+model_defs_path=args.modelDefsPath
+model_weights_path=args.modelWeightsPath
 duration=args.duration
 
 sc = SparkContext(appName="infer_cifar_max", conf=create_spark_conf())
@@ -59,7 +65,7 @@ show_bigdl_info_logs()
 
 # Load model
 print("\nLoading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and BDL_KERAS_CIFAR_CNN.bin.8 (weights)")
-model = Model.loadModel('BDL_KERAS_CIFAR_CNN.bigdl.8', 'BDL_KERAS_CIFAR_CNN.bin.8')
+model = Model.loadModel(model_defs_path, model_weights_path)
 
 # Run train set through prediction loop for specified time
 print("Running inference loop for %d seconds" % (duration))
