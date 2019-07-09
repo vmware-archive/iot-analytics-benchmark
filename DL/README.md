@@ -142,6 +142,7 @@ Using TensorFlow backend.
 2019-01-31T02:45:37Z: Image stream ended
 ```
 
+
 ### Maximum throughput Spark BigDL CNN CIFAR10 image classifier
 
 ```
@@ -159,7 +160,11 @@ Arguments:
 Example
 
 ```
-$ spark-submit --master spark://<host>:7077 --driver-memory 40G --conf spark.executor.instances=12 --conf spark.cores.max=84 --conf spark.executor.cores=7 --executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 --duration 60
+$ spark-submit --master spark://<host>:7077 --driver-memory 40G --conf spark.executor.instances=12 \
+--conf spark.cores.max=84 --conf spark.executor.cores=7 --executor-memory 104g \
+--jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py \
+--modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 \
+--modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 --duration 60
 ...
 Loading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and BDL_KERAS_CIFAR_CNN.bin.8 (weights)
 2019-07-09T17:28:10.825Z: Running inference loop for 60 seconds
@@ -167,6 +172,7 @@ Loading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and BDL_KERA
 2019-07-09T17:29:12.130Z: Iteration 26: 50000 images inferred. Correct predictions: 49872  Pct correct: 0.9974
 2019-07-09T17:29:12.130Z: Test completion: 1300000 images inferred in 61.3 sec or 21205.4 images/second
 ```
+
 
 ### Spark Streaming BigDL CNN CIFAR10 image classifier
 
