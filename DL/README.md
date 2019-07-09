@@ -163,8 +163,7 @@ Example
 $ spark-submit --master spark://<host>:7077 --driver-memory 40G --conf spark.executor.instances=12 \
 --conf spark.cores.max=84 --conf spark.executor.cores=7 --executor-memory 104g \
 --jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py \
---modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 \
---modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 --duration 60
+--modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 --duration 60
 ...
 Loading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and BDL_KERAS_CIFAR_CNN.bin.8 (weights)
 2019-07-09T17:28:10.825Z: Running inference loop for 60 seconds
@@ -218,22 +217,11 @@ Using TensorFlow backend.
 $ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.cores.max=250 --conf spark.executor.cores=10 \
 --executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_stream.py \
 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 -r 25
-Prepending /usr/lib/python3.6/site-packages/bigdl/share/conf/spark-bigdl.conf to sys.path
-Using TensorFlow backend.
-cls.getname: com.intel.analytics.bigdl.python.api.Sample
-BigDLBasePickler registering: bigdl.util.common  Sample
-cls.getname: com.intel.analytics.bigdl.python.api.EvaluatedResult
-BigDLBasePickler registering: bigdl.util.common  EvaluatedResult
-cls.getname: com.intel.analytics.bigdl.python.api.JTensor
-BigDLBasePickler registering: bigdl.util.common  JTensor
-cls.getname: com.intel.analytics.bigdl.python.api.JActivity
-BigDLBasePickler registering: bigdl.util.common  JActivity
+...
 2019-01-31T15:54:40.199Z: Loaded trained model definitions BDL_KERAS_CIFAR_CNN.bigdl.8 and weights BDL_KERAS_CIFAR_CNN.bin.8
 2019-01-31T15:54:40.199Z: Starting reading streaming data from 192.168.1.1:10000 at interval 25 seconds
 2019-01-31T15:55:14.059Z: Interval 1:  images received=126280   images correctly predicted=101124
-2019-01-31T15:55:45.381Z: Interval 2:  images received=295772   images correctly predicted=236811
-2019-01-31T15:56:10.629Z: Interval 3:  images received=284603   images correctly predicted=227911
-2019-01-31T15:56:33.227Z: Interval 4:  images received=292563   images correctly predicted=234241
+...
 2019-01-31T15:56:43.345Z: Interval 5:  images received=782   images correctly predicted=613
 2019-01-31T15:57:05.017Z: Stopping stream
 
@@ -308,10 +296,7 @@ $ spark-submit --master spark://<host>:7077 --driver-memory 100G --conf spark.co
   <path>/iotstreamdl-assembly-0.0.1.jar --model bigdl_resnet_model_887 --reportingInterval 10 --sourcePort 11000 --batchSize 2400
 2019-05-21T18:33:06.567Z: Classifying images from 192.168.1.1:11000 with Resnet model bigdl_resnet_model_887, with 10 second intervals
 2019-05-21T18:33:28.124Z: 40100 images received in interval - 35574 or 88.7% predicted correctly
-2019-05-21T18:33:38.865Z: 64115 images received in interval - 56876 or 88.7% predicted correctly
-2019-05-21T18:33:49.021Z: 65753 images received in interval - 58311 or 88.7% predicted correctly
-2019-05-21T18:33:58.839Z: 64831 images received in interval - 57519 or 88.7% predicted correctly
-2019-05-21T18:34:08.399Z: 65662 images received in interval - 58234 or 88.7% predicted correctly
+...
 2019-05-21T18:34:17.806Z: 59539 images received in interval - 52806 or 88.7% predicted correctly
 2019-05-21T18:34:20.003Z: No input
 2019-05-21T18:34:20.003Z: Stopping stream
