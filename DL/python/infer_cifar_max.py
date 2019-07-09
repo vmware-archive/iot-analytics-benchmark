@@ -44,7 +44,7 @@ model_defs_path=args.modelDefsPath
 model_weights_path=args.modelWeightsPath
 duration=args.duration
 
-sc = SparkContext(appName="infer_cifar_max", conf=create_spark_conf())
+sc = SparkContext(appName="infer-cifar-max", conf=create_spark_conf())
 
 # Download CIFAR10 train images or read from local cache
 # Normalize and transform input data into an RDD of Sample
