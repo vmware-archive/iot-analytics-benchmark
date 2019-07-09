@@ -6,10 +6,10 @@ Usage:
   $ spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py <arguments>
 
   Arguments:
-  -h          | --help                Print help message
+  -h          | --help                      print help message
   -md <value> | --modelDefsPath <value>     model definitions path     Required
   -mw <value> | --modelWeightsPath <value>  model weights path         Required
-  -d  <value> | --duration <value>    Duration (sec)   Default: 10
+  -d  <value> | --duration <value>          duration (sec)   Default: 10
 
 Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
