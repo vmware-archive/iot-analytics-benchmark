@@ -59,7 +59,7 @@ See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 200
   edit `~/.bash_profile`  
   add following lines: 
   ```
-  export PATH=$PATH:/root/spark/bin`
+  export PATH=$PATH:/root/spark/bin
   export SPARK_HOME=/root/spark
   export PYSPARK_PYTHON=python3
   ```
@@ -83,6 +83,7 @@ File                                  | Use
 `send_images_cifar.py`                | Send images to infer_cifar.py
 `keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
 `cifar10_ResNet20v1_model_91470.h5`   | Trained ResNet model for Python Keras program - 91.4% accurate
+`infer_cifar_max.py`                  | Maximum throughput Spark BigDL program to classify CIFAR10 images using CNN model
 `infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
 `send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
 `BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
@@ -139,6 +140,32 @@ Using TensorFlow backend.
 ...
 2019-01-31T02:45:37Z: 10000 images sent
 2019-01-31T02:45:37Z: Image stream ended
+```
+
+### Maximum throughput Spark BigDL CNN CIFAR10 image classifier
+
+```
+cd <path>/iot-analytics-benchmark-master/DL/python
+spark-submit <Spark config params> --jars <path>/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py <arguments>
+```
+
+Arguments:
+```
+  -h          | --help                      print help message
+  -md <value> | --modelDefsPath <value>     model definitions path     Required
+  -mw <value> | --modelWeightsPath <value>  model weights path         Required
+  -d  <value> | --duration <value>          duration (sec)             Default: 10
+```
+Example
+
+```
+$ spark-submit --master spark://<host>:7077 --driver-memory 40G --conf spark.executor.instances=12 --conf spark.cores.max=84 --conf spark.executor.cores=7 --executor-memory 104g --jars <path>/BigDL/lib/bigdl-SPARK_2.4-0.8.0-jar-with-dependencies.jar infer_cifar_max.py --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelDefsPath BDL_KERAS_CIFAR_CNN.bigdl.8 --modelWeightsPath BDL_KERAS_CIFAR_CNN.bin.8 --duration 60
+...
+Loading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and BDL_KERAS_CIFAR_CNN.bin.8 (weights)
+2019-07-09T17:28:10.825Z: Running inference loop for 60 seconds
+2019-07-09T17:28:17.422Z: Iteration 1: 50000 images inferred. Correct predictions: 49872  Pct correct: 0.9974
+2019-07-09T17:29:12.130Z: Iteration 26: 50000 images inferred. Correct predictions: 49872  Pct correct: 0.9974
+2019-07-09T17:29:12.130Z: Test completion: 1300000 images inferred in 61.3 sec or 21205.4 images/second
 ```
 
 ### Spark Streaming BigDL CNN CIFAR10 image classifier

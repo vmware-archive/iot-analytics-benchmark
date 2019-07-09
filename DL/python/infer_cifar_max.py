@@ -9,7 +9,7 @@ Usage:
   -h          | --help                      print help message
   -md <value> | --modelDefsPath <value>     model definitions path     Required
   -mw <value> | --modelWeightsPath <value>  model weights path         Required
-  -d  <value> | --duration <value>          duration (sec)   Default: 10
+  -d  <value> | --duration <value>          duration (sec)             Default: 10
 
 Uses Intel's BigDL library (see https://github.com/intel-analytics/BigDL-Tutorials) and CIFAR10 dataset from https://www.cs.toronto.edu/~kriz/cifar.html
 (Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009, https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -68,7 +68,7 @@ print("\nLoading trained model from BDL_KERAS_CIFAR_CNN.bigdl.8 (definition) and
 model = Model.loadModel(model_defs_path, model_weights_path)
 
 # Run train set through prediction loop for specified time
-print("Running inference loop for %d seconds" % (duration))
+print('%s.%03dZ: Running inference loop for %d seconds' % (strftime("%Y-%m-%dT%H:%M:%S", gmtime()), (time()*1000)%1000, duration))
 iteration = 0
 total_images_predicted = 0
 start_time = time()
