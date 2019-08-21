@@ -11,7 +11,8 @@ as a series of encoded strings and a second program that reads those string, con
 
 The Keras classifier is a Python-based single node program for running on an IoT edge gateway.
 
-The BigDL classifiers (Python and Scala versions) are Spark-based distributed programs using Spark Streaming to read and infer the input encoded images.
+The BigDL classifiers (Python and Scala versions) are Spark-based distributed programs, some using Spark Streaming to read and infer the input encoded images, other
+reading pre-loaded images directly from memory.
 
 Uses Intel's BigDL library (see <https://github.com/intel-analytics/BigDL-Tutorials>) and  
 CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>   
@@ -83,11 +84,12 @@ File                                  | Use
 `send_images_cifar.py`                | Send images to infer_cifar.py
 `keras_cifar10_trained_model_78.h5`   | Trained CNN model for Python Keras program - 78% accurate
 `cifar10_ResNet20v1_model_91470.h5`   | Trained ResNet model for Python Keras program - 91.4% accurate
-`infer_cifar_max.py`                  | Maximum throughput Spark BigDL program to classify CIFAR10 images using CNN model
+`infer_cifar_max.py`                  | Maximum throughput Spark BigDL Python program to classify CIFAR10 images using CNN model
 `infer_cifar_stream.py`               | Spark Streaming BigDL program to classify CIFAR10 images using CNN model
 `send_images_cifar_stream.py`         | Send images to infer_cifar_stream.py
 `BDL_KERAS_CIFAR_CNN.bigdl.8`         | Trained CNN model definition file for BigDL program - 80% accurate
 `BDL_KERAS_CIFAR_CNN.bin.8`           | Trained CNN model weights file for BigDL program - 80% accurate
+`infer_imagenet_max.scala`            | Maximum throughput Spark BigDL Scala program to classify ImageNet images using ResNet50 model
 `infer_cifar_stream.scala`            | Spark Streaming BigDL scala program to classify CIFAR10 images using ResNet model
 `send_images_cifar_stream.scala`      | Send images to infer_cifar_stream.scala
 `bigdl_resnet_model_887`              | Trained ResNet model for Scala BigDL program - 88.7% accurate

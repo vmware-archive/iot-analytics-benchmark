@@ -13,4 +13,5 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-streaming" % sparkVersion % "provided",
   "com.intel.analytics.bigdl" % "bigdl-SPARK_2.4" % BigDLVersion,
   "org.apache.hadoop" % "hadoop-common" % "3.0.0",
+  "com.twelvemonkeys.imageio" % "imageio-core" % "3.4.2",
 )
