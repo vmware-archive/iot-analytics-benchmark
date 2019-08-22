@@ -230,6 +230,57 @@ $ spark-submit --master spark://<host>:7077 --driver-memory 128G --conf spark.co
 2019-01-31T15:57:07.422Z: 1000000 images received in 116.0 seconds (5 intervals), or 8619 images/second  Correct predictions: 800700  Pct correct: 80.1
 ```
 
+### Maximum throughput Spark BigDL Scala program to classify ImageNet images using ResNet50 model
+
+Compile Scala code into assembly with dependencies included:
+
+- Install Scala (2.11.8 tested) and SBT (1.1.0 tested)
+
+  ```
+  cd <path>/iot-analytics-benchmark-master/DL/scala
+  <Modify build.sbt for correct Spark and Scala versions if necessary>
+  sbt assembly
+  ```
+- Creates `iotstreamdl-assembly-0.0.1.jar`
+
+
+To run:
+
+Download validation ImageNet set from http://image-net.org. The folder containing the folders (n01440764, etc.) with the raw JPEG images
+is what the --folder argument points to.  
+          
+Download ResNet50 trained model from Facebook: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained#trained-resnet-torch-models  
+
+Run program:
+```
+$ spark-submit <Spark config params> --class com.intel.analytics.bigdl.examples.imageclassification.infer_imagenet_max <path>/iotstreamdl-assembly-0.0.1.jar <arguments>
+```
+
+Arguments:
+```
+  -f, --folder    <value>  location of test image data  Required
+  -m, --modelPath <value>  location of model            Required
+  -d, --duration  <value>  duration (sec)               Default: 60
+  -b, --batchSize <value>  batch size                   Default: number of executors
+```
+
+Example
+
+```
+$ spark-submit --master spark://192.168.1.1:7077 --driver-memory 100g --conf spark.cores.max=256 --conf spark.executor.cores=16 \
+--conf spark.executor.instances=16 --executor-memory 100g --class com.intel.analytics.bigdl.example.imageclassification.infer_imagenet_max \
+<path>/iotstreamdl-assembly-0.0.1.jar --modelPath <path>/resnet-50.t7 --folder <path>
+2019-08-20T23:24:10.960Z: Loading trained model from /root/BigDL_DJ/resnet-50.t7
+2019-08-20T23:24:12.769Z: Loading images from /root/ilsvrc2012/val2K
+2019-08-20T23:25:07.892Z: 2000 images found, using each image 5x for 10000 total images
+2019-08-20T23:25:08.034Z: Parallelization complete
+2019-08-20T23:25:10.158Z: Running inference loop for 600 seconds
+2019-08-20T23:25:41.136Z: Iteration 1: 10000 images inferred. 8467 or 84.7% predicted correctly
+...
+2019-08-20T23:35:16.651Z: Iteration 26: 10000 images inferred. 8452 or 84.5% predicted correctly
+2019-08-20T23:35:16.651Z: Test completion: 260000 images inferred in 606.5 sec or 428.7 images/second
+```
+
 ### Spark Streaming BigDL ResNet CIFAR10 Scala image classifier
 
 Compile Scala code into assembly with dependencies included:
