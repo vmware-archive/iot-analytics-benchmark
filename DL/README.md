@@ -267,8 +267,9 @@ Arguments:
 Example
 
 ```
-$ spark-submit --master spark://192.168.1.1:7077 --driver-memory 100g --conf spark.cores.max=256 --conf spark.executor.cores=16 \
---conf spark.executor.instances=16 --executor-memory 100g --class com.intel.analytics.bigdl.example.imageclassification.infer_imagenet_max \
+$ spark-submit --master spark://192.168.1.1:7077 --driver-memory 100g --conf spark.cores.max=256 \
+--conf spark.executor.cores=16 --conf spark.executor.instances=16 --executor-memory 100g \
+--class com.intel.analytics.bigdl.example.imageclassification.infer_imagenet_max \
 <path>/iotstreamdl-assembly-0.0.1.jar --modelPath <path>/resnet-50.t7 --folder <path>
 2019-08-20T23:24:10.960Z: Loading trained model from /root/BigDL_DJ/resnet-50.t7
 2019-08-20T23:24:12.769Z: Loading images from /root/ilsvrc2012/val2K
