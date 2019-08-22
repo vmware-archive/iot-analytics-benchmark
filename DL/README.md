@@ -246,7 +246,7 @@ Compile Scala code into assembly with dependencies included:
 
 To run:
 
-Download validation ImageNet set from http://image-net.org. The folder containing the folders (n01440764, etc.) with the raw JPEG images
+Download ImageNet ilsvrc2012 validation set from http://image-net.org. The folder containing the folders (n01440764, etc.) with the raw JPEG images
 is what the --folder argument points to.  
           
 Download ResNet50 trained model from Facebook: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained#trained-resnet-torch-models  
@@ -270,8 +270,8 @@ Example
 $ spark-submit --master spark://192.168.1.1:7077 --driver-memory 100g --conf spark.cores.max=256 \
 --conf spark.executor.cores=16 --conf spark.executor.instances=16 --executor-memory 100g \
 --class com.intel.analytics.bigdl.example.imageclassification.infer_imagenet_max \
-<path>/iotstreamdl-assembly-0.0.1.jar --modelPath <path>/resnet-50.t7 --folder <path>
-2019-08-20T23:24:10.960Z: Loading trained model from /root/BigDL_DJ/resnet-50.t7
+<path>/iotstreamdl-assembly-0.0.1.jar --modelPath /root/resnet-50.t7 --folder /root/ilsvrc2012/val2K
+2019-08-20T23:24:10.960Z: Loading trained model from /root/resnet-50.t7
 2019-08-20T23:24:12.769Z: Loading images from /root/ilsvrc2012/val2K
 2019-08-20T23:25:07.892Z: 2000 images found, using each image 5x for 10000 total images
 2019-08-20T23:25:08.034Z: Parallelization complete
