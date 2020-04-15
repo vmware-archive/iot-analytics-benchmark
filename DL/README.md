@@ -14,6 +14,8 @@ The Keras classifier is a Python-based single node program for running on an IoT
 The BigDL classifiers (Python and Scala versions) are Spark-based distributed programs, some using Spark Streaming to read and infer the input encoded images, other
 reading pre-loaded images directly from memory.
 
+The infer_imagenet_pytorch_max.py test is a GPU-based PyTorch inference engine that loads ImageNet images into memory and classifies them as fast as possible using various models
+
 Uses Intel's BigDL library (see <https://github.com/intel-analytics/BigDL-Tutorials>) and  
 CIFAR10 dataset from <https://www.cs.toronto.edu/~kriz/cifar.html>   
 See [Learning Multiple Layers of Features from Tiny Images, Alex Krizhevsky, 2009](https://www.cs.toronto.edu/~kriz/learning-features-2009-TR.pdf)
@@ -95,6 +97,7 @@ File                                  | Use
 `bigdl_resnet_model_887`              | Trained ResNet model for Scala BigDL program - 88.7% accurate
 `build.sbt`                           | SBT build file
 `assembly.sbt`                        | SBT assembly file
+`infer_imagenet_pytorch_max.py`       | Maximum throughput PyTorch program to classify ImageNet images using various models
 `README.md`                           | This file
 
 
@@ -358,6 +361,53 @@ $ spark-submit --master spark://<host>:7077 --driver-memory 100G --conf spark.co
 2019-05-21T18:34:22.431Z: 360000 images received in 56.4 seconds (6 intervals), or 6382 images/second. 319320 of 360000 or 88.7% predicted correctly
 ```
 
+### Maximum throughput PyTorch program to classify ImageNet images using various models
+
+Needs to be run in container based on nvcr.io/nvidia/pytorch:20.02-py3
+
+Run program:
+```
+
+$ python infer_imagenet_pytorch_max.py [-h] [-a ARCH] [-b BATCH_SIZE] [-d DURATION] [-i INTERVAL] DIR
+
+positional arguments:
+  DIR                   path to dataset containing bucketed ImageNet validation images
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a ARCH, --arch ARCH  model architecture: alexnet | densenet121 |
+                        densenet161 | densenet169 | densenet201 | googlenet |
+                        inception_v3 | mnasnet0_5 | mnasnet0_75 | mnasnet1_0 |
+                        mnasnet1_3 | mobilenet_v2 | resnet101 | resnet152 |
+                        resnet18 | resnet34 | resnet50 | resnext101 |
+                        resnext101_32x8d | resnext152 | resnext50 |
+                        resnext50_32x4d | shufflenet_v2_x0_5 |
+                        shufflenet_v2_x1_0 | shufflenet_v2_x1_5 |
+                        shufflenet_v2_x2_0 | squeezenet1_0 | squeezenet1_1 |
+                        vgg11 | vgg11_bn | vgg13 | vgg13_bn | vgg16 | vgg16_bn
+                        | vgg19 | vgg19_bn | wide_resnet101_2 |
+                        wide_resnet50_2 (default: resnet18)
+  -b BATCH_SIZE, --batch-size BATCH_SIZE
+                        batch size (default: 256). Must be less than the number of ImageNet val images in DIR
+  -d DURATION, --duration DURATION
+                        Run duration in seconds (default: 600)
+  -i INTERVAL, --interval INTERVAL
+                        Iterations per print (default: 10)
+```
+
+Example
+
+```
+python infer_imagenet_pytorch_max.py -a resnet50 -d 60 -i 10 -b 1024 /data
+Running image classification using pre-trained model resnet50 with data from /data/val, for 60 seconds, reporting every 10 iterations, with batch_size 1024
+Model loaded
+1024 images loaded
+2020-04-14T02:38:09.969Z: Test started
+2020-04-14T02:38:38.570Z: Iteration 10: 10240 images inferred. Acc@1= 89.648 Acc@5= 97.363
+2020-04-14T02:39:05.646Z: Iteration 20: 20480 images inferred. Acc@1= 89.648 Acc@5= 97.363
+2020-04-14T02:39:16.115Z: Test completed: 20480 images inferred in 66.1 sec or 309.6 images/second
+
+```
 ## Where do trained models come from?
 
 ### keras_cifar10_trained_model_78.h5
