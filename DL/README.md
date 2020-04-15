@@ -398,7 +398,7 @@ optional arguments:
 Example
 
 ```
-python infer_imagenet_pytorch_max.py -a resnet50 -d 60 -i 10 -b 1024 /data
+$ python infer_imagenet_pytorch_max.py -a resnet50 -d 60 -i 10 -b 1024 /data
 Running image classification using pre-trained model resnet50 with data from /data/val, for 60 seconds, reporting every 10 iterations, with batch_size 1024
 Model loaded
 1024 images loaded
