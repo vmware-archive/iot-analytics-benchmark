@@ -8,11 +8,11 @@ Usage:
   $ python infer_imagenet_pytorch_max.py <arguments>  DIR
 
 positional arguments:
-  DIR                   path to dataset
+  DIR                   Path to dataset
 
 optional arguments:
-  -h, --help            show this help message and exit
-  -a ARCH, --arch ARCH  model architecture: alexnet | densenet121 |
+  -h, --help            Show this help message and exit
+  -a ARCH, --arch ARCH  Model architecture: alexnet | densenet121 |
                         densenet161 | densenet169 | densenet201 | googlenet |
                         inception_v3 | mnasnet0_5 | mnasnet0_75 | mnasnet1_0 |
                         mnasnet1_3 | mobilenet_v2 | resnet101 | resnet152 |
@@ -23,10 +23,9 @@ optional arguments:
                         shufflenet_v2_x2_0 | squeezenet1_0 | squeezenet1_1 |
                         vgg11 | vgg11_bn | vgg13 | vgg13_bn | vgg16 | vgg16_bn
                         | vgg19 | vgg19_bn | wide_resnet101_2 |
-                        wide_resnet50_2 (default: resnet18)
+                        wide_resnet50_2 (default: resnet50)
   -b BATCH_SIZE, --batch-size BATCH_SIZE
-                        batch size (default: 256). Must be less than the
-                        number of ImageNet val images in DIR
+                        Batch size (default: 256). Must be less than the number of ImageNet val images in DIR
   -d DURATION, --duration DURATION
                         Run duration in seconds (default: 600)
   -i INTERVAL, --interval INTERVAL
@@ -74,14 +73,14 @@ model_names = sorted(name for name in models.__dict__
 
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Inference Maximum Speed Test')
 parser.add_argument('data', metavar='DIR',
-                    help='path to dataset containing bucketed ImageNet validation images')
+                    help='Path to dataset containing bucketed ImageNet validation images')
 parser.add_argument('-a', '--arch', metavar='ARCH', default='resnet50',
                     choices=model_names,
-                    help='model architecture: ' +
+                    help='Model architecture: ' +
                         ' | '.join(model_names) +
-                        ' (default: resnet18)')
+                        ' (default: resnet50)')
 parser.add_argument('-b', '--batch-size', default=256, type=int,
-                    help='batch size (default: 256). Must be less than the number of ImageNet val images in DIR')
+                    help='Batch size (default: 256). Must be less than the number of ImageNet val images in DIR')
 
 parser.add_argument('-d', '--duration', default=600, type=int,
                     help='Run duration in seconds (default: 600)')
@@ -125,7 +124,7 @@ val_loader = torch.utils.data.DataLoader(
     normalize,
   ])),
   batch_size, shuffle=False,
-  num_workers=1, pin_memory=True)
+  num_workers=0, pin_memory=True)
 
 model.eval()
 
